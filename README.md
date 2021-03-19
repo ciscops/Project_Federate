@@ -7,37 +7,31 @@
 * 
 
 ## Installation/Configuration
+```
+# Create and Enter a Virtual Environment (MacOS)
+python3 -m venv <NAME>
+source <NAME>/bin/activate
 
-This is as a template, project owner to update
+# Set Environmental settings
+export FLASK_APP=src
+export FLASK_ENV=development
+```
 
-Add any steps needed to install the project so that someone can reproduce the project
-
-```python
-# Add any settings in environemnt fields or files.  Below is an example:
-# NSO server IP and Username and Password
-NSO_URL = "http://10.10.10.1:8080/"
-NSO_USER = "nso_username"
-NSO_PASSWORD = "nso_password"
-
-# EPNM server IP and port and NSO device name
-EPNM_IP = "10.10.10.2"
-EPNM_PORT = "443"
-EPNM_DEVICE_NAME = "EPNM1"
-
+## Validate Setup
+```
+# If configured correctly, this command should display the available paths of the application
+flask routes
 ```
 
 
 ## Usage
+```
+# Initialize application database (only needed on first use)
+flask init-db
 
-This is a template, project owner to update
-
-Add any steps needed for someone to run your project.
-
-To launch an optical service create:
-
-
-    $ python create_service.py
-
+# Start the application
+flask run
+```
 
 
 # Screenshots
