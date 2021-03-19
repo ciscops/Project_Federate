@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-2"></div>
+		<div class="col-8">
+			<div class="panel panel--raised" style="background-color: #ced4da; text-align:center;">
+				<form method="post">
+					<div class="row base-margin-bottom">
+						<div class="col-2"></div>
+						<div class="col-8">
+							<div class="row">
+								<span><img src="{{ url_for('static', filename='img/logo.png') }}"></span>
+							</div>
+							<div class="row">
+								<div class="col-2"></div>
+								<div class="col-8">
+									<h3><u>Register a New User</u></h3>
+								</div>
+								<div class="col-2"></div>
+							</div>
+						</div>
+						<div class="col-2"></div>
+					</div>
+					<div class="row base-margin-bottom">
+						<div class="col-2"></div>
+						<div class="col-4">
+							<label for="username">Username:</label>
+							<input name="username" id="username" required>
+						</div>
+
+						<div class="col-4">
+							<label for="password">Password:</label>
+							<input type="password" name="password" id="password" required>
+						</div>
+						<div class="col-2"></div>
+					</div>
+
+					<div class="row base-margin-bottom">
+						<div class="col-9"></div>
+						<div class="col-3">
+							<input class="btn btn--primary" type="submit" value="Register">
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="col-2"></div>
+	</div>
+{% endblock %}
