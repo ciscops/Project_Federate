@@ -1,6 +1,99 @@
 {% extends 'base.html' %}
 
 {% block content %}
-	<h1>{% block title %}<u>User Settings</u>{% endblock %}</h1>
+	<div class="row">
+		<div class="col-12">
+			<div class="panel panel--raised" style="background-color: #f2f2f2; text-align:center;">
+				<form method="post">
+					<div class="row base-margin-bottom">
+						<div class="col-2"></div>
+						<div class="col-8">
+							<h1>{% block title %}<u>Update Prototype Settings</u>{% endblock %}</h1>
+						</div>
+						<div class="col-2"></div>
+					</div>
+
+					<div class="row base-margin-bottom">
+						<div class="col-3">
+							<h5>DNA-Center:</h5>
+						</div>
+						<div class="col-3">
+							<label for="dnac_host">Host:</label>
+							<input type="dnac_host" name="dnac_host" id="dnac_host">
+						</div>
+						<div class="col-3">
+							<label for="dnac_username">Username:</label>
+							<input name="dnac_username" id="dnac_username">
+						</div>
+
+						<div class="col-3">
+							<label for="dnac_password">Password:</label>
+							<input type="dnac_password" name="dnac_password" id="dnac_password">
+						</div>
+					</div>
+
+					<div class="row base-margin-bottom">
+						<div class="col-3">
+							<h5>Prime Infrastructure:</h5>
+						</div>
+						<div class="col-3">
+							<label for="prime_host">Host:</label>
+							<input type="prime_host" name="prime_host" id="prime_host">
+						</div>
+						<div class="col-3">
+							<label for="prime_username">Username:</label>
+							<input name="prime_username" id="prime_username">
+						</div>
+
+						<div class="col-3">
+							<label for="prime_password">Password:</label>
+							<input type="prime_password" name="prime_password" id="prime_password">
+						</div>
+					</div>
+
+					<div class="row base-margin-bottom">
+						<div class="col-3">
+							<h5>BMC Remedy ITSM:</h5>
+						</div>
+						<div class="col-3">
+							<label for="bmc_host">Host:</label>
+							<input type="bmc_host" name="bmc_host" id="bmc_host">
+						</div>
+						<div class="col-3">
+							<label for="bmc_username">Username:</label>
+							<input name="bmc_username" id="bmc_username">
+						</div>
+
+						<div class="col-3">
+							<label for="bmc_password">Password:</label>
+							<input type="bmc_password" name="bmc_password" id="bmc_password">
+						</div>
+					</div>
+
+					<div class="row base-margin-bottom">
+						<div class="col-3">
+							<h5>Microsoft Teams:</h5>
+						</div>
+						<div class="col-3">
+							<label for="teams_host">Host:</label>
+							<input type="teams_host" name="teams_host" id="teams_host">
+						</div>
+						<div class="col-3">
+							<label for="teams_token">Token:</label>
+							<input name="teams_token" id="teams_token">
+						</div>
+						<div class="col-3"></div>
+					</div>
+					<div class="row base-margin-bottom">
+						<div class="col-4"></div>
+						<div class="col-4">
+							<input class="btn btn--secondary btn--justified" type="submit" value="Apply Settings" style="background-color:#0F223F;">
+						</div>
+						<div class="col-4"></div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 
 {% endblock %}

@@ -1,9 +1,101 @@
 {% extends 'base.html' %}
 
-{% block header %}
-	<h1>{% block title %}<u>Main Dashboard</u>{% endblock %}</h1>
-{% endblock %}
-
 {% block content %}
+	<div class="row dbl-margin-bottom">
+		<div class="col-12">
+			<div class="panel panel--raised" style="background-color: #f2f2f2; text-align:center;">
+				<form method="post">
+					<div class="row">
+						<div class="col-2"></div>
+						<div class="col-8">
+							<h1>{% block title %}<u>Services</u>{% endblock %}</h1>
+						</div>
+						<div class="col-2"></div>
+					</div>
+					<div class="row base-margin-bottom">
+						<div class="col-2"></div>
+						<div class="col-8">
+							<div class="responsive-table">
+								<table class="table">
+									<thead>
+										<tr>
+											<th></th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td><h5>DNA-Center:</h5></td>
+											<td>
+												<button class="btn btn--circle btn--success btn--large">
+													<span class="icon-check"></span>
+												</button>
+											</td>
+											<td><h5>Prime:</h5></td>
+											<td>
+												<button class="btn btn--circle btn--danger btn--large">
+													<span class="icon-exit"></span>
+												</button>
+											</td>
+										</tr>
+										<tr>
+											<td><h5>BMC Remedy:</h5></td>
+											<td>
+												<button class="btn btn--circle btn--danger btn--large">
+													<span class="icon-exit"></span>
+												</button>
+											</td>
+											<td><h5>MKSFT Teams:</h5></td>
+											<td>
+												<button class="btn btn--circle btn--danger btn--large">
+													<span class="icon-exit"></span>
+												</button>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12">
+			<div class="panel panel--raised" style="background-color: #f2f2f2; text-align:center;">
+				<div class="row">
+					<div class="col-2"></div>
+					<div class="col-8">
+						<h1><u>Recent Actions</u></h1>
+					</div>
+					<div class="col-2"></div>
+				</div>
+				<div class="row base-margin-bottom">
+					<div class="col-2"></div>
+					<div class="col-8">
+						<div class="responsive-table">
+							<table class="table">
+								<thead>
+									<tr>
+										<th></th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td></td>
+										<td></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="col-2"></div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 {% endblock %}

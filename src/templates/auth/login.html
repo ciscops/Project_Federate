@@ -5,23 +5,20 @@
 
 {% block content %}
 	<div class="row">
-		<div class="col-2"></div>
-		<div class="col-8">
-			<div class="panel panel--raised" style="background-color: #ced4da; text-align:center;">
+		<div class="col-12">
+			<div class="panel panel--raised" style="background-color: #f2f2f2; text-align:center;">
 				<form method="post">
 					<div class="row base-margin-bottom">
 						<div class="col-2"></div>
 						<div class="col-8">
-							<div class="row">
-								<span><img src="{{ url_for('static', filename='img/logo.png') }}"></span>
-							</div>
-							<div class="row">
-								<div class="col-2"></div>
-								<div class="col-8">
-									<h3><u>User Login</u></h3>
-								</div>
-								<div class="col-2"></div>
-							</div>
+							<span><img src="{{ url_for('static', filename='img/logo.jpg') }}"></span>
+						</div>
+						<div class="col-2"></div>
+					</div>
+					<div class="row base-margin-bottom">
+						<div class="col-2"></div>
+						<div class="col-8">
+							<h3><u>User Login</u></h3>
 						</div>
 						<div class="col-2"></div>
 					</div>
@@ -40,14 +37,15 @@
 					</div>
 
 					<div class="row base-margin-bottom">
-						<div class="col-9"></div>
-						<div class="col-3">
-							<input class="btn btn--primary" type="submit" value="Login">
+						<div class="col-4"></div>
+						<div class="col-4">
+							<input class="btn btn--secondary btn--justified" type="submit" value="Login" style="background-color:#0F223F;">
 						</div>
+						<div class="col-4"></div>
 					</div>
 				</form>
 			</div>
 		</div>
-		<div class="col-2"></div>
+
 	</div>
 {% endblock %}
