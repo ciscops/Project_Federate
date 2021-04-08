@@ -5,5 +5,5 @@ def send_Teams_Message(mksft_teams, events):
     myTeamsMessage = pymsteams.connectorcard(mksft_teams)
 
     for event in events:
-        myTeamsMessage.text('''TODO: figure out which details to send''')
+        myTeamsMessage.text(event['name'] + ': ' + event['description'])
         myTeamsMessage.send()

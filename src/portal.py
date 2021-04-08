@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Copyright (c) 2020 Cisco and/or its affiliates.
 
@@ -19,6 +20,8 @@ from werkzeug.security import check_password_hash
 from src.auth import login_required
 from src.db import get_db
 from src.dnacAPI import *
+# from src.bmcAPI import *
+from src.teamsBot import *
 from datetime import datetime
 import json
 import urllib3
@@ -37,16 +40,30 @@ def home():
     """
     error = None
     dnac_status = False
+    # bmc_status = False
+    mksft_teams_status = False
     if 'dnac' in session:
         session['dnac']['dnac_Token'] = get_Dna_Token(session['dnac'])
         if session['dnac']['dnac_Token'] != "":
             dnac_status = True
+
+        events = get_Dna_Events(session['dnac'])
+    else:
+        return redirect(url_for('portal.settings'))
     if 'prime' in session:
         prime = session['prime']
     if 'bmc' in session:
         bmc = session['bmc']
+        # session['bmc']['bmc_Token'] = get_Bmc_Token(session['bmc'])
+        # if session['bmc']['bmc_Token'] != "":
+            # bmc_status = True
+    else:
+        return redirect(url_for('portal.settings'))
     if 'mksft_teams' in session:
-        mksft_teams = session['mksft_teams']
+        if session['mksft_teams']['webhook_url'] != "":
+            mksft_teams_status = True
+
+        send_Teams_Message(session['mksft_teams']['webhook_url'], events)
 
     if error is not None:
         flash(error)
@@ -94,7 +111,7 @@ def settings():
             prime["prime_password"] = request.form.get('prime_password')
         session['prime'] = prime
 
-        # Check for any DNA-Center inputs
+        # Check for any BMC inputs
         if request.form.get('bmc_host') != "":
             bmc["bmc_host"] = request.form.get('bmc_host')
         if request.form.get('bmc_username') != "":
@@ -103,11 +120,15 @@ def settings():
             bmc["bmc_password"] = request.form.get('bmc_password')
         session['bmc'] = bmc
 
-        # Check for any DNA-Center inputs
-        if request.form.get('teams_host') != "":
+        # Check for any Microsoft Teams inputs
+        '''if request.form.get('teams_host') != "":
             mksft_teams["teams_host"] = request.form.get('teams_host')
         if request.form.get('teams_token') != "":
             mksft_teams["teams_token"] = request.form.get('teams_token')
+        session['mksft_teams'] = mksft_teams
+        '''
+        if request.form.get('webhook_url') != "":
+            mksft_teams['webhook_url'] = request.form.get('webhook_url')
         session['mksft_teams'] = mksft_teams
 
         return redirect(url_for('portal.home'))

@@ -24,7 +24,7 @@ def get_Bmc_Token(bmc):
 def create_Bmc_incident(bmc, event):
     url = 'http://{}/api/arsys/v1/entry/HPD:IncidentInterface_Create?fields=values(Incident Number)'.format(bmc['bmc_host'])
     headers = {
-        'Authorization': 'AR-JWT' + get_Bmc_Token(bmc),
+        'Authorization': 'AR-JWT ' + session['bmc_Token'],
         'Content-Type': 'application/json'
         }
     body = {
