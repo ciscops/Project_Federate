@@ -106,8 +106,9 @@
           <div class="col-4">
             <h5><u>Prime Infrastructure</u></h5>
             <ul style="list-style-type:none">
-              {% for event in prime_events %}
-                <li>event</li>
+              {% for alarm in prime_alarms %}
+              <li>{{ alarm['queryResponse']['entity'][0]['alarmsDTO']['condition']['value'] }}: {{ alarm['queryResponse']['entity'][0]['alarmsDTO']['message'] }}</li>
+              <br>
               {% endfor %}
             </ul>
           </div>

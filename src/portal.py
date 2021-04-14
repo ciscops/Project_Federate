@@ -20,6 +20,7 @@ from werkzeug.security import check_password_hash
 from src.auth import login_required
 from src.db import get_db
 from src.dnacAPI import *
+from src.primeAPI import *
 from src.bmcAPI import *
 from src.teamsBot import *
 from datetime import datetime
@@ -45,7 +46,7 @@ def home():
     mksft_teams_status = False
 
     dnac_events = []
-    prime_events = []
+    prime_alarms = []
 
     if 'dnac' in session:
         session['dnac']['dnac_Token'] = get_Dna_Token(session['dnac'])
@@ -58,15 +59,22 @@ def home():
         return redirect(url_for('portal.settings'))
 
     if 'prime' in session:
-        prime = session['prime']
+        if session['prime']['prime_host'] != "":
+            prime_status = True
+
+        prime_alarms = get_Prime_Alarms(session['prime'])
+
+    else:
+        return redirect(url_for('portal.settings'))
 
     if 'bmc' in session:
-        bmc = session['bmc']
         session['bmc']['bmc_Token'] = get_Bmc_Token(session['bmc'])
+
         if session['bmc']['bmc_Token'] != "":
             bmc_status = True
 
-        create_Bmc_incident(session['bmc'], dnac_events)
+        create_Bmc_Incident_Dnac(session['bmc'], dnac_events)
+        create_Bmc_Incident_Prime(session['bmc'], prime_alarms)
     else:
         return redirect(url_for('portal.settings'))
 
@@ -74,7 +82,8 @@ def home():
         if session['mksft_teams']['webhook_url'] != "":
             mksft_teams_status = True
 
-        send_Teams_Message(session['mksft_teams']['webhook_url'], dnac_events)
+        send_Teams_Message_Dnac(session['mksft_teams']['webhook_url'], dnac_events)
+        send_Teams_Message_Prime(session['mksft_teams']['webhook_url'], prime_alarms)
     else:
         return redirect(url_for('portal.settings'))
 
@@ -84,7 +93,7 @@ def home():
     return render_template('portal/home.html', dnac_status=dnac_status,
         prime_status=prime_status, bmc_status=bmc_status,
         mksft_teams_status=mksft_teams_status, dnac_events=dnac_events,
-        prime_events=prime_events)
+        prime_alarms=prime_alarms)
 
 
 @bp.route('/settings', methods=('GET', 'POST'))

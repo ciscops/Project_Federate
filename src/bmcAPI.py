@@ -19,11 +19,11 @@ def get_Bmc_Token(bmc):
     else:
         result = resp.json()['Token']'''
 
-    print('BMC token API call: \n URL: {} \n Headers: {} \n Authorization: {}'.format(url, headers, (bmc['bmc_username'], bmc['bmc_password'])))
+    print('BMC token API call: \n URL: {} \n Headers: {} \n Authorization: {}\n\n'.format(url, headers, (bmc['bmc_username'], bmc['bmc_password'])))
     result = 'TOKEN GOES HERE'
     return result
 
-def create_Bmc_incident(bmc, events):
+def create_Bmc_Incident_Dnac(bmc, events):
     url = 'http://{}/api/arsys/v1/entry/HPD:IncidentInterface_Create?fields=values(Incident Number)'.format(bmc['bmc_host'])
     headers = {
         'Authorization': 'AR-JWT ' + bmc['bmc_Token'],
@@ -32,15 +32,37 @@ def create_Bmc_incident(bmc, events):
     for event in events:
         body = {
             'values': {
-                'First_Name': 'John',
-                'Last_Name': 'Smith',
+                'First_Name': 'First Name Here',
+                'Last_Name': 'Last Name Here',
                 'Description': event['description'],
-                'Impact': 'Big',
+                'Impact': 'Impact Here',
                 'Urgency': event['severity'],
-                'Status': 'Unknown',
-                'Reported Source': 'ME',
-                'Service_Type': 'Probably switch'
+                'Status': 'Status Here',
+                'Reported Source': 'Source Here',
+                'Service_Type': 'Service Type Here'
             }
         }
         # resp = requests.post(url, headers=headers, data=body, verify=False)
-        print('BMC incident API call: \n URL: {} \n Headers: {} \n Body: {}'.format(url, headers, body))
+        print('BMC incident API call with DNAC event: \n URL: {} \n Headers: {} \n Body: {} \n\n'.format(url, headers, body))
+
+def create_Bmc_Incident_Prime(bmc, alarms):
+    url = 'http://{}/api/arsys/v1/entry/HPD:IncidentInterface_Create?fields=values(Incident Number)'.format(bmc['bmc_host'])
+    headers = {
+        'Authorization': 'AR-JWT ' + bmc['bmc_Token'],
+        'Content-Type': 'application/json'
+        }
+    for alarm in alarms:
+        body = {
+            'values': {
+                'First_Name': 'First Name Here',
+                'Last_Name': 'Last Name Here',
+                'Description': alarm['queryResponse']['entity'][0]['alarmsDTO']['message'],
+                'Impact': 'Impact Here',
+                'Urgency': 'Urgency Here',
+                'Status': 'Status Here',
+                'Reported Source': 'Source Here',
+                'Service_Type': 'Service Type Here'
+                }
+            }
+
+        print('BMC incident API call with Prime Alarm: \n URL: {} \n Headers: {} \n Body: {} \n\n'.format(url, headers, body))
