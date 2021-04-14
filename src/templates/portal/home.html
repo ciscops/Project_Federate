@@ -27,29 +27,49 @@
 										<tr>
 											<td><h5>DNA-Center:</h5></td>
 											<td>
-												<button class="btn btn--circle btn--success btn--large">
-													<span class="icon-check"></span>
+                        {% if dnac_status == True %}
+												  <button class="btn btn--circle btn--success btn--large">
+													  <span class="icon-check"></span>
 												</button>
+                        {% else %}
+												  <button class="btn btn--circle btn--danger btn--large">
+													  <span class="icon-exit"></span>
+                        {% endif %}
 											</td>
 											<td><h5>Prime:</h5></td>
 											<td>
-												<button class="btn btn--circle btn--danger btn--large">
-													<span class="icon-exit"></span>
+                        {% if prime_status == True %}
+												  <button class="btn btn--circle btn--success btn--large">
+													  <span class="icon-check"></span>
 												</button>
+                        {% else %}
+												  <button class="btn btn--circle btn--danger btn--large">
+													  <span class="icon-exit"></span>
+                        {% endif %}
 											</td>
 										</tr>
 										<tr>
 											<td><h5>BMC Remedy:</h5></td>
 											<td>
-												<button class="btn btn--circle btn--danger btn--large">
-													<span class="icon-exit"></span>
+                        {% if bmc_status == True %}
+												  <button class="btn btn--circle btn--success btn--large">
+													  <span class="icon-check"></span>
 												</button>
+                        {% else %}
+												  <button class="btn btn--circle btn--danger btn--large">
+													  <span class="icon-exit"></span>
+                        {% endif %}
 											</td>
 											<td><h5>MKSFT Teams:</h5></td>
 											<td>
-												<button class="btn btn--circle btn--danger btn--large">
-													<span class="icon-exit"></span>
+                        {% if mksft_teams_status == True %}
+												  <button class="btn btn--circle btn--success btn--large">
+													  <span class="icon-check"></span>
 												</button>
+                        {% else %}
+												  <button class="btn btn--circle btn--danger btn--large">
+													  <span class="icon-exit"></span>
+                        {% endif %}
 											</td>
 										</tr>
 									</tbody>
@@ -68,30 +88,30 @@
 				<div class="row">
 					<div class="col-2"></div>
 					<div class="col-8">
-						<h1><u>Recent Actions</u></h1>
+						<h1><u>Event Logs</u></h1>
 					</div>
 					<div class="col-2"></div>
 				</div>
 				<div class="row base-margin-bottom">
 					<div class="col-2"></div>
-					<div class="col-8">
-						<div class="responsive-table">
-							<table class="table">
-								<thead>
-									<tr>
-										<th></th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td></td>
-										<td></td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
+					<div class="col-4">
+            <h5><u>DNA-Center</u></h5>
+            <ul style="list-style-type:none">
+              {% for event in dnac_events %}
+              <li>{{ event['name'] }}: {{ event['description'] }}</li>
+              <br>
+              {% endfor %}
+            </ul>
 					</div>
+          <div class="col-4">
+            <h5><u>Prime Infrastructure</u></h5>
+            <ul style="list-style-type:none">
+              {% for alarm in prime_alarms %}
+              <li>{{ alarm['queryResponse']['entity'][0]['alarmsDTO']['condition']['value'] }}: {{ alarm['queryResponse']['entity'][0]['alarmsDTO']['message'] }}</li>
+              <br>
+              {% endfor %}
+            </ul>
+          </div>
 					<div class="col-2"></div>
 				</div>
 			</div>
