@@ -15,7 +15,7 @@ writing, software distributed under the License is distributed on an "AS
 IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 or implied.
 """
-from flask import Blueprint, flash, g, redirect, render_template, request, Response, session, url_for
+from flask import Blueprint, flash, g, redirect, render_template, request, Response, session, url_for, jsonify
 from werkzeug.security import check_password_hash
 from src.auth import login_required
 from src.db import get_db
@@ -26,7 +26,7 @@ from src.teamsBot import *
 from datetime import datetime
 import json
 import urllib3
-
+import pprint
 
 urllib3.disable_warnings()
 bp = Blueprint('portal', __name__)
@@ -45,55 +45,22 @@ def home():
     bmc_status = False
     mksft_teams_status = False
 
-    dnac_events = []
-    prime_alarms = []
+    required_keys = ["dnac", "prime", "bmc", "mksft_teams"]
+    for key in required_keys:
+        if key not in session:
+            return redirect(url_for('portal.settings'))
 
-    if 'dnac' in session:
-        session['dnac']['dnac_Token'] = get_Dna_Token(session['dnac'])
-
-        if session['dnac']['dnac_Token'] != "":
-            dnac_status = True
-
-        dnac_events = get_Dna_Events(session['dnac'])
-    else:
-        return redirect(url_for('portal.settings'))
-
-    if 'prime' in session:
-        if session['prime']['prime_host'] != "":
-            prime_status = True
-
-        prime_alarms = get_Prime_Alarms(session['prime'])
-
-    else:
-        return redirect(url_for('portal.settings'))
-
-    if 'bmc' in session:
-        session['bmc']['bmc_Token'] = get_Bmc_Token(session['bmc'])
-
-        if session['bmc']['bmc_Token'] != "":
-            bmc_status = True
-
-        create_Bmc_Incident_Dnac(session['bmc'], dnac_events)
-        create_Bmc_Incident_Prime(session['bmc'], prime_alarms)
-    else:
-        return redirect(url_for('portal.settings'))
-
-    if 'mksft_teams' in session:
-        if session['mksft_teams']['webhook_url'] != "":
-            mksft_teams_status = True
-
-        send_Teams_Message_Dnac(session['mksft_teams']['webhook_url'], dnac_events)
-        send_Teams_Message_Prime(session['mksft_teams']['webhook_url'], prime_alarms)
-    else:
-        return redirect(url_for('portal.settings'))
+    dnac_status = session['dnac'].get('dnac_Token', "") != ""
+    prime_status = session['prime'].get('prime_host', "") != ""
+    bmc_status = session['bmc'].get('bmc_Token', "") != ""
+    mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
 
     if error is not None:
         flash(error)
 
     return render_template('portal/home.html', dnac_status=dnac_status,
         prime_status=prime_status, bmc_status=bmc_status,
-        mksft_teams_status=mksft_teams_status, dnac_events=dnac_events,
-        prime_alarms=prime_alarms)
+        mksft_teams_status=mksft_teams_status)
 
 
 @bp.route('/settings', methods=('GET', 'POST'))
@@ -127,6 +94,8 @@ def settings():
         if request.form.get('dnac_password') != "":
             dnac["dnac_password"] = request.form.get('dnac_password')
         session['dnac'] = dnac
+        if 'dnac' in session and session['dnac'] != {}:
+            session['dnac']['dnac_Token'] = get_Dna_Token(session['dnac'])
 
         # Check for any Prime inputs
         if request.form.get('prime_host') != "":
@@ -145,6 +114,8 @@ def settings():
         if request.form.get('bmc_password') != "":
             bmc["bmc_password"] = request.form.get('bmc_password')
         session['bmc'] = bmc
+        if 'bmc' in session and session['bmc'] != {}:
+            session['bmc']['bmc_Token'] = get_Bmc_Token(session['bmc'])
 
         # Check for any Microsoft Teams inputs
         if request.form.get('webhook_url') != "":
@@ -156,3 +127,72 @@ def settings():
     if error is not None:
         flash(error)
     return render_template('portal/settings.html', session=session)
+
+@bp.route('/complete', methods=('GET', 'POST'))
+@login_required
+def portalComplete():
+    session['dnac']['events'] = []
+    session['prime']['alarms'] = []
+
+    required_keys = ["dnac", "prime", "bmc", "mksft_teams"]
+    for key in required_keys:
+        if key not in session:
+            return redirect(url_for('portal.settings'))
+
+    dnac_status = session['dnac'].get('dnac_Token', "") != ""
+    prime_status = session['prime'].get('prime_host', "") != ""
+    bmc_status = session['bmc'].get('bmc_Token', "") != ""
+    mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
+
+    #session['dnac']['events'] = get_Dna_Events(session['dnac'])
+    #session['prime']['alarms'] = get_Prime_Alarms(session['prime'])
+    #create_Bmc_Incident_Dnac(session['bmc'], session['dnac']['events'])
+    #create_Bmc_Incident_Prime(session['bmc'], session['prime']['alarms'])
+    #send_Teams_Message_Dnac(session['mksft_teams']['webhook_url'], session['dnac']['events'])
+    #send_Teams_Message_Prime(session['mksft_teams']['webhook_url'], session['prime']['alarms'])
+
+    if 'events' in session['dnac'] or 'alarms' in session['prime']:
+        return render_template('portal/complete.html', dnac_status=dnac_status,
+                prime_status=prime_status, bmc_status=bmc_status,
+                mksft_teams_status=mksft_teams_status,
+                # dnac_events=session['dnac']['events'],
+                # prime_alarms=session['prime']['alarms'])
+                dnac_events=[],
+                prime_alarms=[])
+
+    return redirect(url_for('portal.home'))
+
+@bp.route('/events', methods=('GET',))
+@login_required
+def events():
+    session['dnac']['events'] = get_Dna_Events(session['dnac'])
+    create_Bmc_Incident_Dnac(session['bmc'], session['dnac']['events'])
+    send_Teams_Message_Dnac(session['mksft_teams']['webhook_url'], session['dnac']['events'])
+    session['prime']['alarms'] = get_Prime_Alarms(session['prime'])
+    pprint.pprint(session['prime']['alarms'])
+    create_Bmc_Incident_Prime(session['bmc'], session['prime']['alarms'])
+    send_Teams_Message_Prime(session['mksft_teams']['webhook_url'], session['prime']['alarms'])
+
+    try:
+        events = []
+        for event in session['dnac']['events']:
+            evt = {
+                "id": event["eventId"],
+                "name": event["name"],
+                "description": event["description"],
+                "type": "dnac",
+            }
+            events.append(evt)
+        for alarm in session['prime']['alarms']:
+            evt = {
+                "id": alarm['queryResponse']['entity'][0]['alarmsDTO']['@id'],
+                "name": alarm['queryResponse']['entity'][0]['alarmsDTO']['condition']['value'],
+                "description": alarm['queryResponse']['entity'][0]['alarmsDTO']['message'],
+                "type": "prime"
+            }
+            events.append(evt)
+    except KeyError as e:
+        print(str(e))
+
+
+    return jsonify(events)

@@ -82,40 +82,6 @@
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="col-12">
-			<div class="panel panel--raised" style="background-color: #f2f2f2; text-align:center;">
-				<div class="row">
-					<div class="col-2"></div>
-					<div class="col-8">
-						<h1><u>Event Logs</u></h1>
-					</div>
-					<div class="col-2"></div>
-				</div>
-				<div class="row base-margin-bottom">
-					<div class="col-2"></div>
-					<div class="col-4">
-            <h5><u>DNA-Center</u></h5>
-            <ul style="list-style-type:none">
-              {% for event in dnac_events %}
-              <li>{{ event['name'] }}: {{ event['description'] }}</li>
-              <br>
-              {% endfor %}
-            </ul>
-					</div>
-          <div class="col-4">
-            <h5><u>Prime Infrastructure</u></h5>
-            <ul style="list-style-type:none">
-              {% for alarm in prime_alarms %}
-              <li>{{ alarm['queryResponse']['entity'][0]['alarmsDTO']['condition']['value'] }}: {{ alarm['queryResponse']['entity'][0]['alarmsDTO']['message'] }}</li>
-              <br>
-              {% endfor %}
-            </ul>
-          </div>
-					<div class="col-2"></div>
-				</div>
-			</div>
-		</div>
-	</div>
+
 
 {% endblock %}
