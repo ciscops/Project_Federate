@@ -106,16 +106,22 @@
 								http.open("GET", url);
 								http.send();
 								http.onreadystatechange = (e) => {
-									dnac_events = document.getElementById("dnacevents");
-									prime_alarms = document.getElementById("primealarms");
-									try{
-										new_events = JSON.parse(http.responseText);
-									}
-									catch(err) {
-										dnac_events.innerHTML = "<li>There was an error</li>";
-										prime_alarms.innerHTML = "<li>There was an error</li>";
-										return;
-									}
+									const dnac_events = document.getElementById("dnacevents");
+									const prime_alarms = document.getElementById("primealarms");
+                  const response_text = http.response;
+                  let new_events = [];
+                  console.log(http);
+                  if(response_text != "") {
+                    try{
+                      new_events = JSON.parse(response_text);
+                    }
+                    catch(err) {
+                      dnac_events.innerHTML = "<li>There was an error</li>";
+                      prime_alarms.innerHTML = "<li>There was an error</li>";
+                      console.log(err);
+                      return;
+                    }
+                  }
 									if (first_through) {
 										dnac_events.innerHTML = "";
 										prime_alarms.innerHTML = "";

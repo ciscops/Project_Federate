@@ -169,7 +169,6 @@ def events():
     create_Bmc_Incident_Dnac(session['bmc'], session['dnac']['events'])
     send_Teams_Message_Dnac(session['mksft_teams']['webhook_url'], session['dnac']['events'])
     session['prime']['alarms'] = get_Prime_Alarms(session['prime'])
-    pprint.pprint(session['prime']['alarms'])
     create_Bmc_Incident_Prime(session['bmc'], session['prime']['alarms'])
     send_Teams_Message_Prime(session['mksft_teams']['webhook_url'], session['prime']['alarms'])
 
