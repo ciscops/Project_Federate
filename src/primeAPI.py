@@ -14,22 +14,22 @@ urllib3.disable_warnings()
 # FUNCTIONS #
 #############
 
-def get_Prime_Alarms(prime):
+def get_Prime_Events(prime):
     base_uri = prime['prime_host']
     user = prime['prime_username']
     password = prime['prime_password']
-    rest_path = '/webacs/api/v4/data/Alarms.json'
+    rest_path = '/webacs/api/v4/data/Events.json'
 
     url = base_uri + rest_path
     response = requests.get(url, auth=(user, password), verify=False)
-    alarms = response.json()['queryResponse']['entityId']
+    events = response.json()['queryResponse']['entityId']
 
-    alarm_list = []
+    event_list = []
 
-    for alarm in alarms:
-        url = alarm['@url'] + '.json'
+    for event in events:
+        url = event['@url'] + '.json'
         response = requests.get(url, auth=(user, password), verify=False)
 
-        alarm_list.append(response.json())
+        event_list.append(response.json())
 
-    return alarm_list
+    return event_list

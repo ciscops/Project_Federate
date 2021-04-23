@@ -45,18 +45,18 @@ def create_Bmc_Incident_Dnac(bmc, events):
         # resp = requests.post(url, headers=headers, data=body, verify=False)
         print('BMC incident API call with DNAC event: \n URL: {} \n Headers: {} \n Body: {} \n\n'.format(url, headers, body))
 
-def create_Bmc_Incident_Prime(bmc, alarms):
+def create_Bmc_Incident_Prime(bmc, events):
     url = 'http://{}/api/arsys/v1/entry/HPD:IncidentInterface_Create?fields=values(Incident Number)'.format(bmc['bmc_host'])
     headers = {
         'Authorization': 'AR-JWT ' + bmc['bmc_Token'],
         'Content-Type': 'application/json'
         }
-    for alarm in alarms:
+    for event in events:
         body = {
             'values': {
                 'First_Name': 'First Name Here',
                 'Last_Name': 'Last Name Here',
-                'Description': alarm['queryResponse']['entity'][0]['alarmsDTO']['message'],
+                'Description': event['queryResponse']['entity'][0]['eventsDTO']['description'],
                 'Impact': 'Impact Here',
                 'Urgency': 'Urgency Here',
                 'Status': 'Status Here',
@@ -65,4 +65,4 @@ def create_Bmc_Incident_Prime(bmc, alarms):
                 }
             }
 
-        print('BMC incident API call with Prime Alarm: \n URL: {} \n Headers: {} \n Body: {} \n\n'.format(url, headers, body))
+        print('BMC incident API call with Prime event: \n URL: {} \n Headers: {} \n Body: {} \n\n'.format(url, headers, body))

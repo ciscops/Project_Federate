@@ -9,12 +9,12 @@ def send_Teams_Message_Dnac(mksft_teams, events):
         myTeamsMessage.send()
 
 
-def send_Teams_Message_Prime(mksft_teams, alarms):
+def send_Teams_Message_Prime(mksft_teams, events):
     myTeamsMessage = pymsteams.connectorcard(mksft_teams)
 
-    for alarm in alarms:
-        alarm_name = alarm['queryResponse']['entity'][0]['alarmsDTO']['condition']['value']
-        alarm_description = alarm['queryResponse']['entity'][0]['alarmsDTO']['message']
+    for event in events:
+        event_name = event['queryResponse']['entity'][0]['eventsDTO']['condition']['value']
+        event_description = event['queryResponse']['entity'][0]['eventsDTO']['description']
 
-        myTeamsMessage.text('Prime Alarm: ' + alarm_name + ': ' + alarm_description)
+        myTeamsMessage.text('Prime Event: ' + event_name + ': ' + event_description)
         myTeamsMessage.send()

@@ -132,7 +132,7 @@ def settings():
 @login_required
 def portalComplete():
     session['dnac']['events'] = []
-    session['prime']['alarms'] = []
+    session['prime']['events'] = []
 
     required_keys = ["dnac", "prime", "bmc", "mksft_teams"]
     for key in required_keys:
@@ -151,14 +151,14 @@ def portalComplete():
     #send_Teams_Message_Dnac(session['mksft_teams']['webhook_url'], session['dnac']['events'])
     #send_Teams_Message_Prime(session['mksft_teams']['webhook_url'], session['prime']['alarms'])
 
-    if 'events' in session['dnac'] or 'alarms' in session['prime']:
+    if 'events' in session['dnac'] or 'events' in session['prime']:
         return render_template('portal/complete.html', dnac_status=dnac_status,
                 prime_status=prime_status, bmc_status=bmc_status,
                 mksft_teams_status=mksft_teams_status,
                 # dnac_events=session['dnac']['events'],
                 # prime_alarms=session['prime']['alarms'])
                 dnac_events=[],
-                prime_alarms=[])
+                prime_events=[])
 
     return redirect(url_for('portal.home'))
 
@@ -168,25 +168,25 @@ def events():
     session['dnac']['events'] = get_Dna_Events(session['dnac'])
     create_Bmc_Incident_Dnac(session['bmc'], session['dnac']['events'])
     send_Teams_Message_Dnac(session['mksft_teams']['webhook_url'], session['dnac']['events'])
-    session['prime']['alarms'] = get_Prime_Alarms(session['prime'])
-    create_Bmc_Incident_Prime(session['bmc'], session['prime']['alarms'])
-    send_Teams_Message_Prime(session['mksft_teams']['webhook_url'], session['prime']['alarms'])
+    session['prime']['events'] = get_Prime_Events(session['prime'])
+    create_Bmc_Incident_Prime(session['bmc'], session['prime']['events'])
+    send_Teams_Message_Prime(session['mksft_teams']['webhook_url'], session['prime']['events'])
 
     try:
         events = []
-        for event in session['dnac']['events']:
+        for dnac_event in session['dnac']['events']:
             evt = {
-                "id": event["eventId"],
-                "name": event["name"],
-                "description": event["description"],
+                "id": dnac_event["eventId"],
+                "name": dnac_event["name"],
+                "description": dnac_event["description"],
                 "type": "dnac",
             }
             events.append(evt)
-        for alarm in session['prime']['alarms']:
+        for prime_event in session['prime']['events']:
             evt = {
-                "id": alarm['queryResponse']['entity'][0]['alarmsDTO']['@id'],
-                "name": alarm['queryResponse']['entity'][0]['alarmsDTO']['condition']['value'],
-                "description": alarm['queryResponse']['entity'][0]['alarmsDTO']['message'],
+                "id": prime_event['queryResponse']['entity'][0]['evemtsDTO']['@id'],
+                "name": prime_event['queryResponse']['entity'][0]['eventsDTO']['condition']['value'],
+                "description": prime_event['queryResponse']['entity'][0]['eventsDTO']['description'],
                 "type": "prime"
             }
             events.append(evt)

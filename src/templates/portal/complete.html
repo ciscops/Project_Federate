@@ -110,7 +110,6 @@
 									const prime_alarms = document.getElementById("primealarms");
                   const response_text = http.response;
                   let new_events = [];
-                  console.log(http);
                   if(response_text != "") {
                     try{
                       new_events = JSON.parse(response_text);
@@ -140,7 +139,7 @@
 								}
 							}
 							setTimeout(updateDNACEvents, 0);
-							setInterval(updateDNACEvents, 1000 * 60 * 2);
+							setInterval(updateDNACEvents, 1000 * 60 * 5);
 						</script>
 					<ul id="dnacevents" style="list-style-type:none">
 						<li>Loading</li>
