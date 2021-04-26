@@ -144,19 +144,10 @@ def portalComplete():
     bmc_status = session['bmc'].get('bmc_Token', "") != ""
     mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
 
-    #session['dnac']['events'] = get_Dna_Events(session['dnac'])
-    #session['prime']['alarms'] = get_Prime_Alarms(session['prime'])
-    #create_Bmc_Incident_Dnac(session['bmc'], session['dnac']['events'])
-    #create_Bmc_Incident_Prime(session['bmc'], session['prime']['alarms'])
-    #send_Teams_Message_Dnac(session['mksft_teams']['webhook_url'], session['dnac']['events'])
-    #send_Teams_Message_Prime(session['mksft_teams']['webhook_url'], session['prime']['alarms'])
-
     if 'events' in session['dnac'] or 'events' in session['prime']:
         return render_template('portal/complete.html', dnac_status=dnac_status,
                 prime_status=prime_status, bmc_status=bmc_status,
                 mksft_teams_status=mksft_teams_status,
-                # dnac_events=session['dnac']['events'],
-                # prime_alarms=session['prime']['alarms'])
                 dnac_events=[],
                 prime_events=[])
 
@@ -192,6 +183,5 @@ def events():
             events.append(evt)
     except KeyError as e:
         print(str(e))
-
 
     return jsonify(events)
