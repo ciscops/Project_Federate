@@ -175,7 +175,7 @@ def events():
             events.append(evt)
         for prime_event in session['prime']['events']:
             evt = {
-                "id": prime_event['queryResponse']['entity'][0]['evemtsDTO']['@id'],
+                "id": prime_event['queryResponse']['entity'][0]['eventsDTO']['@id'],
                 "name": prime_event['queryResponse']['entity'][0]['eventsDTO']['condition']['value'],
                 "description": prime_event['queryResponse']['entity'][0]['eventsDTO']['description'],
                 "type": "prime"

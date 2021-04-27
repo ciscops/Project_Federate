@@ -18,11 +18,13 @@ def get_Prime_Events(prime):
     base_uri = prime['prime_host']
     user = prime['prime_username']
     password = prime['prime_password']
-    rest_path = '/webacs/api/v4/data/Events.json'
+    rest_path = '/webacs/api/v4/data/Events.json?.full=true&.maxResults=20&.firstResult=80'
+    # rest_path = '/webacs/api/v4/data/Events.json'
 
     url = base_uri + rest_path
     response = requests.get(url, auth=(user, password), verify=False)
-    events = response.json()['queryResponse']['entityId']
+    response = json.loads(response.content)
+    events = response['queryResponse']['entity']
 
     event_list = []
 

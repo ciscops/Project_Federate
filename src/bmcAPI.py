@@ -58,7 +58,7 @@ def create_Bmc_Incident_Prime(bmc, events):
                 'Last_Name': 'Last Name Here',
                 'Description': event['queryResponse']['entity'][0]['eventsDTO']['description'],
                 'Impact': 'Impact Here',
-                'Urgency': 'Urgency Here',
+                'Urgency': event['queryResponse']['entity'][0]['eventsDTO']['severity'],
                 'Status': 'Status Here',
                 'Reported Source': 'Source Here',
                 'Service_Type': 'Service Type Here'
