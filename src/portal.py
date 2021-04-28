@@ -27,9 +27,27 @@ from datetime import datetime
 import json
 import urllib3
 import pprint
+import threading
+import queue
 
 urllib3.disable_warnings()
-bp = Blueprint('portal', __name__)
+
+q = queue.Queue()
+def do_queue():
+    global q
+    while True:
+        job = q.get()
+        job()
+        q.task_done()
+
+consumer = threading.Thread(target=do_queue)
+consumer.daemon = True
+consumer.start()
+
+try:
+    bp = Blueprint('portal', __name__)
+except KeyboardInterrupt:
+    q.join()
 
 
 @bp.route('/', methods=('GET', 'POST'))
@@ -157,11 +175,17 @@ def portalComplete():
 @login_required
 def events():
     session['dnac']['events'] = get_Dna_Events(session['dnac'])
-    create_Bmc_Incident_Dnac(session['bmc'], session['dnac']['events'])
-    send_Teams_Message_Dnac(session['mksft_teams']['webhook_url'], session['dnac']['events'])
     session['prime']['events'] = get_Prime_Events(session['prime'])
-    create_Bmc_Incident_Prime(session['bmc'], session['prime']['events'])
-    send_Teams_Message_Prime(session['mksft_teams']['webhook_url'], session['prime']['events'])
+
+    dnac_events = session['dnac']['events']
+    prime_events = session['prime']['events']
+    bmc = session['bmc']
+    teams_url = session['mksft_teams']['webhook_url']
+
+    q.put(lambda: create_Bmc_Incident_Dnac(bmc, dnac_events))
+    q.put(lambda: create_Bmc_Incident_Prime(bmc, prime_events))
+    q.put(lambda: send_Teams_Message_Dnac(teams_url, dnac_events))
+    q.put(lambda: send_Teams_Message_Prime(teams_url, prime_events))
 
     try:
         events = []
