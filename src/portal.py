@@ -146,9 +146,9 @@ def settings():
         flash(error)
     return render_template('portal/settings.html', session=session)
 
-@bp.route('/complete', methods=('GET', 'POST'))
+@bp.route('/logs', methods=('GET', 'POST'))
 @login_required
-def portalComplete():
+def logs():
     session['dnac']['events'] = []
     session['prime']['events'] = []
 
@@ -163,7 +163,7 @@ def portalComplete():
     mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
 
     if 'events' in session['dnac'] or 'events' in session['prime']:
-        return render_template('portal/complete.html', dnac_status=dnac_status,
+        return render_template('portal/logs.html', dnac_status=dnac_status,
                 prime_status=prime_status, bmc_status=bmc_status,
                 mksft_teams_status=mksft_teams_status,
                 dnac_events=[],
