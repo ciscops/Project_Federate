@@ -140,7 +140,7 @@ def settings():
             mksft_teams['webhook_url'] = request.form.get('webhook_url')
         session['mksft_teams'] = mksft_teams
 
-        return redirect(url_for('portal.home'))
+        return redirect(url_for('portal.logs'))
 
     if error is not None:
         flash(error)
