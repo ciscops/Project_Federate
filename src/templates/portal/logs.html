@@ -97,10 +97,10 @@
 				<div class="col-4">
 					<h5><u>DNA-Center</u></h5>
 					<script>
-							seen_events = {}
+							seen_events = {};
 							first_through = true;
-							function updateDNACEvents(){
-								console.log("Pulling in new events")
+            function updateDNACEvents(){
+								console.log("Pulling in new events");
 								const http = new XMLHttpRequest();
 								const url = '{{url_for("portal.events")}}';
 								http.open("GET", url);
@@ -108,6 +108,10 @@
 								http.onreadystatechange = (e) => {
 									const dnac_events = document.getElementById("dnacevents");
 									const prime_alarms = document.getElementById("primealarms");
+                  const dnac_size = document.getElementById("dnacsize");
+                  const prime_size = document.getElementById("primesize");
+                  let dnac_events_len;
+                  let prime_events_len;
                   const response_text = http.response;
                   let new_events = [];
                   if(response_text != "") {
@@ -117,6 +121,8 @@
                     catch(err) {
                       dnac_events.innerHTML = "<li>There was an error</li>";
                       prime_alarms.innerHTML = "<li>There was an error</li>";
+                      dnac_size.innerHTML = "no dnac events";
+                      prime_size.innerHTML = "no prime events";
                       console.log(err);
                       return;
                     }
@@ -124,23 +130,36 @@
 									if (first_through) {
 										dnac_events.innerHTML = "";
 										prime_alarms.innerHTML = "";
+                    dnac_events_len = 0;
+                    prime_events_len = 0;
 										first_through = false;
 									}
 									for(event of new_events)
 									{
 										if (!(event.id in seen_events))
-										{
+									  {
 											seen_events[event.id] = event;
 											evt_html = "<li>" + event.name + ": " + event.description + "</li><br>";
-											if (event.type == "dnac") dnac_events.innerHTML += evt_html;
-											if (event.type == "prime") prime_alarms.innerHTML += evt_html;
+											if (event.type == "dnac")
+                      {
+                        dnac_events.innerHTML += evt_html;
+                        dnac_events_len += 1;
+                      }
+											if (event.type == "prime")
+                      {
+                        prime_alarms.innerHTML += evt_html;
+                        prime_events_len += 1;
+                      }
 										}
 									}
+                  dnac_size.innerHTML = dnac_events_len;
+                  prime_size.innerHTML = prime_events_len; 
 								}
 							}
 							setTimeout(updateDNACEvents, 0);
 							setInterval(updateDNACEvents, 1000 * 60 * 3);
 						</script>
+          <h3 id = "dnacsize"></h3>
 					<ul id="dnacevents" style="list-style-type:none">
 						<li>Loading</li>
 						<br>
@@ -148,6 +167,7 @@
 				</div>
 				<div class="col-4">
 					<h5><u>Prime Infrastructure</u></h5>
+          <h3 id = "primesize"></h3>
             <ul id="primealarms" style="list-style-type:none">
               <li>Loading</li>
 				<br>

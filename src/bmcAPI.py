@@ -54,13 +54,13 @@ def create_Bmc_Incident_Prime(bmc, events):
         'Content-Type': 'application/json'
         }
     for event in events:
-        severity = event['queryResponse']['entity'][0]['eventsDTO']['severity']
+        severity = event['severity']
         if severity == 'CRITICAL' or severity == 'MAJOR':
             body = {
                 'values': {
                     'First_Name': 'First Name Here',
                     'Last_Name': 'Last Name Here',
-                    'Description': event['queryResponse']['entity'][0]['eventsDTO']['description'],
+                    'Description': event['description'],
                     'Impact': 'Impact Here',
                     'Urgency': severity,
                     'Status': 'Status Here',

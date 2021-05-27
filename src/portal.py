@@ -111,9 +111,11 @@ def settings():
             dnac["dnac_username"] = request.form.get('dnac_username')
         if request.form.get('dnac_password') != "":
             dnac["dnac_password"] = request.form.get('dnac_password')
-        session['dnac'] = dnac
+        session["dnac"] = dnac
         if 'dnac' in session and session['dnac'] != {}:
-            session['dnac']['dnac_Token'] = get_Dna_Token(session['dnac'])
+            dnac_token = get_Dna_Token(dnac)
+            dnac["dnac_Token"] = dnac_token
+            session["dnac"] = dnac
 
         # Check for any Prime inputs
         if request.form.get('prime_host') != "":
@@ -133,7 +135,9 @@ def settings():
             bmc["bmc_password"] = request.form.get('bmc_password')
         session['bmc'] = bmc
         if 'bmc' in session and session['bmc'] != {}:
-            session['bmc']['bmc_Token'] = get_Bmc_Token(session['bmc'])
+            bmc_token = get_Bmc_Token(bmc)
+            bmc["bmc_Token"] = bmc_token
+            session["bmc"] = bmc
 
         # Check for any Microsoft Teams inputs
         if request.form.get('webhook_url') != "":
@@ -149,8 +153,12 @@ def settings():
 @bp.route('/logs', methods=('GET', 'POST'))
 @login_required
 def logs():
-    session['dnac']['events'] = []
-    session['prime']['events'] = []
+    dnac = session["dnac"]
+    prime = session["prime"]
+    dnac["events"] = []
+    prime["events"] = []
+    session["dnac"] = dnac
+    session["prime"] = prime
 
     required_keys = ["dnac", "prime", "bmc", "mksft_teams"]
     for key in required_keys:
@@ -171,16 +179,54 @@ def logs():
 
     return redirect(url_for('portal.home'))
 
+@bp.route('/dnacLogs', methods=('GET',))
+@login_required
+def dnacLogs():
+    dnac_events = session["dnac"]["events"]
+    return render_template('portal/dnacLogs.html', dnac_events=dnac_events)
+
+
+@bp.route('/primeLogs', methods=('GET',))
+@login_required
+def primeLogs():
+    prime_events = session["prime"]["events"]
+    return render_template('portal/primeLogs.html', prime_events=prime_events)
+
+
 @bp.route('/events', methods=('GET',))
 @login_required
 def events():
-    session['dnac']['events'] = get_Dna_Events(session['dnac'])
-    session['prime']['events'] = get_Prime_Events(session['prime'])
+    dnac = session['dnac']
+    prime = session['prime']
+    dnac['events'] = get_Dna_Events(session['dnac'])
+    prime['events'] = get_Prime_Events(session['prime'])
+    dnac_events = []
+    prime_events = []
+    for dnac_event in dnac["events"]:
+        dnac_evt = {
+            "id": dnac_event["eventId"],
+            "name": dnac_event["name"],
+            "description": dnac_event["description"],
+            "severity": dnac_event["severity"]
+        }
+        dnac_events.append(dnac_evt)
+    for prime_event in prime["events"]:
+        prime_evt = {
+            "id": prime_event['queryResponse']['entity'][0]['eventsDTO']['@id'],
+            "name": prime_event['queryResponse']['entity'][0]['eventsDTO']['condition']['value'],
+            "description": prime_event['queryResponse']['entity'][0]['eventsDTO']['description'],
+            "severity": prime_event['queryResponse']['entity'][0]['eventsDTO']['severity']
+        }
+        prime_events.append(prime_evt)
 
-    dnac_events = session['dnac']['events']
-    prime_events = session['prime']['events']
+    dnac["events"] = dnac_events
+    prime["events"] = prime_events
+    session['dnac'] = dnac
+    session['prime'] = prime
+
     bmc = session['bmc']
     teams_url = session['mksft_teams']['webhook_url']
+    session.modified = True
 
     q.put(lambda: create_Bmc_Incident_Dnac(bmc, dnac_events))
     q.put(lambda: create_Bmc_Incident_Prime(bmc, prime_events))
@@ -194,7 +240,7 @@ def events():
                 "id": dnac_event["eventId"],
                 "name": dnac_event["name"],
                 "description": dnac_event["description"],
-                "type": "dnac",
+                "type": "dnac"
             }
             events.append(evt)
         for prime_event in session['prime']['events']:

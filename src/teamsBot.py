@@ -13,8 +13,8 @@ def send_Teams_Message_Prime(mksft_teams, events):
     myTeamsMessage = pymsteams.connectorcard(mksft_teams)
 
     for event in events:
-        event_name = event['queryResponse']['entity'][0]['eventsDTO']['condition']['value']
-        event_description = event['queryResponse']['entity'][0]['eventsDTO']['description']
+        event_name = event['name']
+        event_description = event['description']
 
         myTeamsMessage.text('Prime Event: ' + event_name + ': ' + event_description)
         myTeamsMessage.send()
