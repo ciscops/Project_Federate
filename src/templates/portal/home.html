@@ -108,6 +108,8 @@
                 http.onload = function() {
                   const dnac_size = document.getElementById("dnacsize");
                   const prime_size = document.getElementById("primesize");
+                  //const dnac_events = document.getElementById("dnacevents");
+                  //const prime_events = document.getElementById("primeevents");
                   const response_text = http.response;
                   var dnac_events_len = 0;
                   var prime_events_len = 0;
@@ -117,13 +119,17 @@
                       new_events = JSON.parse(response_text);
                     }
                     catch(err) {
-                      dnac_size.innerHTML = "There was an error retrieving DNAC events"
+                      //dnac_events.innerHTML = "<li>There was an error</li>";
+                      //prime_events.innerHTML = "<li>There was an error</li>";
+                      dnac_size.innerHTML = "There was an error retrieving DNAC events";
                       prime_size.innerHTML = "There was an error retrieving Prime events";
                       console.log(err);
                       return;
                     }
                   }
 								  if (first_through) {
+                    //dnac_events.innerHTML = "";
+                    //prime_alarms.innerHTML = "";
 									  first_through = false;
 							    }
 								  for(event of new_events)
@@ -131,12 +137,15 @@
 									  if (!(event.id in seen_events))
 									  {
 										  seen_events[event.id] = event;
+                      //evt_html = "<li>" + event.name + ": " + event.description + "</li><br>";
 										  if (event.type == "dnac")
                       {
+                        //dnac_events.innerHTML += evt_html;
                         dnac_events_len += 1;
                       }
 										  if (event.type == "prime")
                       {
+                        //prime_events.innerHTML += evt_html;
                         prime_events_len += 1;
                       }
 									  }
@@ -147,8 +156,13 @@
                   prime_size.innerHTML = prime_size_string; 
                 }
 							}
-              updateDNACEvents();
+              setTimeout(updateDNACEvents, 0);
+              setInterval(updateDNACEvents, 1000 * 60 * 3);
 					</script>
+          <!--<ul id="dnacevents" style="list-style-type:none">
+            <li>Loading</li>
+            <br>
+            </ul>-->
           <h6>
             <a href="{{ url_for('portal.dnacLogs') }}" id="dnacsize">
               Retrieving DNAC Events...
@@ -157,6 +171,10 @@
 				</div>
 				<div class="col-4">
           <h4><u>Prime Infrastructure</u></h4>
+          <!--<ul id="primeevents" style="list-style-type:none">
+            <li>Loading</li>
+            <br>
+          </ul>-->
           <h6>
             <a href="{{ url_for('portal.primeLogs') }}" id="primesize">
               Retrieving Prime Events...
