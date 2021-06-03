@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<ul style="list-style-type:none;">
+{% for event in dnac_events %}
+<li>
+  <h3>{{event.name}}</h3>
+  <p>{{event.description}}</p>
+</li>
+{% endfor %}
+</ul>
+{% endblock %}

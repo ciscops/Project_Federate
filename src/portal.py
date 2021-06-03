@@ -53,32 +53,31 @@ except KeyboardInterrupt:
 @bp.route('/', methods=('GET', 'POST'))
 @login_required
 def home():
-    """
-    Home Page back-end functionality
-    :return:
-    """
-    error = None
-    dnac_status = False
-    prime_status = False
-    bmc_status = False
-    mksft_teams_status = False
-
     required_keys = ["dnac", "prime", "bmc", "mksft_teams"]
     for key in required_keys:
         if key not in session:
             return redirect(url_for('portal.settings'))
+
+    dnac = session["dnac"]
+    prime = session["prime"]
+    dnac["events"] = []
+    prime["events"] = []
+    session["dnac"] = dnac
+    session["prime"] = prime
 
     dnac_status = session['dnac'].get('dnac_Token', "") != ""
     prime_status = session['prime'].get('prime_host', "") != ""
     bmc_status = session['bmc'].get('bmc_Token', "") != ""
     mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
 
-    if error is not None:
-        flash(error)
+    if 'events' in session['dnac'] or 'events' in session['prime']:
+        return render_template('portal/home.html', dnac_status=dnac_status,
+                prime_status=prime_status, bmc_status=bmc_status,
+                mksft_teams_status=mksft_teams_status,
+                dnac_events=[],
+                prime_events=[])
 
-    return render_template('portal/home.html', dnac_status=dnac_status,
-        prime_status=prime_status, bmc_status=bmc_status,
-        mksft_teams_status=mksft_teams_status)
+    return redirect(url_for('portal.home'))
 
 
 @bp.route('/settings', methods=('GET', 'POST'))
@@ -144,40 +143,12 @@ def settings():
             mksft_teams['webhook_url'] = request.form.get('webhook_url')
         session['mksft_teams'] = mksft_teams
 
-        return redirect(url_for('portal.logs'))
+        return redirect(url_for('portal.home'))
 
     if error is not None:
         flash(error)
     return render_template('portal/settings.html', session=session)
 
-@bp.route('/logs', methods=('GET', 'POST'))
-@login_required
-def logs():
-    dnac = session["dnac"]
-    prime = session["prime"]
-    dnac["events"] = []
-    prime["events"] = []
-    session["dnac"] = dnac
-    session["prime"] = prime
-
-    required_keys = ["dnac", "prime", "bmc", "mksft_teams"]
-    for key in required_keys:
-        if key not in session:
-            return redirect(url_for('portal.settings'))
-
-    dnac_status = session['dnac'].get('dnac_Token', "") != ""
-    prime_status = session['prime'].get('prime_host', "") != ""
-    bmc_status = session['bmc'].get('bmc_Token', "") != ""
-    mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
-
-    if 'events' in session['dnac'] or 'events' in session['prime']:
-        return render_template('portal/logs.html', dnac_status=dnac_status,
-                prime_status=prime_status, bmc_status=bmc_status,
-                mksft_teams_status=mksft_teams_status,
-                dnac_events=[],
-                prime_events=[])
-
-    return redirect(url_for('portal.home'))
 
 @bp.route('/dnacLogs', methods=('GET',))
 @login_required
@@ -207,7 +178,8 @@ def events():
             "id": dnac_event["eventId"],
             "name": dnac_event["name"],
             "description": dnac_event["description"],
-            "severity": dnac_event["severity"]
+            "severity": dnac_event["severity"],
+            "type": "dnac"
         }
         dnac_events.append(dnac_evt)
     for prime_event in prime["events"]:
@@ -215,7 +187,8 @@ def events():
             "id": prime_event['queryResponse']['entity'][0]['eventsDTO']['@id'],
             "name": prime_event['queryResponse']['entity'][0]['eventsDTO']['condition']['value'],
             "description": prime_event['queryResponse']['entity'][0]['eventsDTO']['description'],
-            "severity": prime_event['queryResponse']['entity'][0]['eventsDTO']['severity']
+            "severity": prime_event['queryResponse']['entity'][0]['eventsDTO']['severity'],
+            "type": "prime"
         }
         prime_events.append(prime_evt)
 
@@ -223,7 +196,6 @@ def events():
     prime["events"] = prime_events
     session['dnac'] = dnac
     session['prime'] = prime
-
     bmc = session['bmc']
     teams_url = session['mksft_teams']['webhook_url']
     session.modified = True
@@ -233,11 +205,13 @@ def events():
     q.put(lambda: send_Teams_Message_Dnac(teams_url, dnac_events))
     q.put(lambda: send_Teams_Message_Prime(teams_url, prime_events))
 
-    try:
+    events = dnac_events + prime_events
+
+    '''try:
         events = []
         for dnac_event in session['dnac']['events']:
             evt = {
-                "id": dnac_event["eventId"],
+                "id": dnac_event["id"],
                 "name": dnac_event["name"],
                 "description": dnac_event["description"],
                 "type": "dnac"
@@ -252,6 +226,6 @@ def events():
             }
             events.append(evt)
     except KeyError as e:
-        print(str(e))
+        print(str(e))'''
 
     return jsonify(events)
