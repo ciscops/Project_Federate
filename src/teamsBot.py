@@ -18,3 +18,16 @@ def send_Teams_Message_Prime(mksft_teams, events):
 
         myTeamsMessage.text('Prime Event: ' + event_name + ': ' + event_description)
         myTeamsMessage.send()
+
+
+def checkConnection(mksft_teams):
+    myTeamsMessage = pymsteams.connectorcard(mksft_teams)
+    myTeamsMessage.text('Incoming Events Notifications...')
+    myTeamsMessage.send()
+
+    status_code = myTeamsMessage.last_http_status.status_code
+
+    if status_code == 200:
+        return True
+
+    return False

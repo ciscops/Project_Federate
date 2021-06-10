@@ -23,6 +23,7 @@ from src.dnacAPI import *
 from src.primeAPI import *
 from src.bmcAPI import *
 from src.teamsBot import *
+from src.checkIp import checkIp
 from datetime import datetime
 import json
 import urllib3
@@ -65,10 +66,14 @@ def home():
     session["dnac"] = dnac
     session["prime"] = prime
 
-    dnac_status = session['dnac'].get('dnac_Token', "") != ""
-    prime_status = session['prime'].get('prime_host', "") != ""
-    bmc_status = session['bmc'].get('bmc_Token', "") != ""
-    mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
+    dnac_status = checkIp(session["dnac"]["dnac_host"])
+    prime_status = checkIp(session["prime"]["prime_host"])
+    bmc_status = checkIp(session["bmc"]["bmc_host"])
+    mksft_teams_status = checkConnection(session["mksft_teams"]["webhook_url"])
+    # dnac_status = session['dnac'].get('dnac_Token', "") != ""
+    # prime_status = session['prime'].get('prime_host', "") != ""
+    # bmc_status = session['bmc'].get('bmc_Token', "") != ""
+    # mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
 
     if 'events' in session['dnac'] or 'events' in session['prime']:
         return render_template('portal/home.html', dnac_status=dnac_status,

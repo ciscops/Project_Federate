@@ -15,7 +15,7 @@ urllib3.disable_warnings()
 #############
 
 def get_Prime_Events(prime):
-    base_uri = prime['prime_host']
+    base_uri = 'https://' + prime['prime_host']
     user = prime['prime_username']
     password = prime['prime_password']
     rest_path = '/webacs/api/v4/data/Events.json?.full=true&.maxResults=20&.firstResult=80'
