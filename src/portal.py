@@ -69,11 +69,11 @@ def home():
     dnac_status = checkIp(session["dnac"]["dnac_host"])
     prime_status = checkIp(session["prime"]["prime_host"])
     bmc_status = checkIp(session["bmc"]["bmc_host"])
-    mksft_teams_status = checkConnection(session["mksft_teams"]["webhook_url"])
+    # mksft_teams_status = checkConnection(session["mksft_teams"]["webhook_url"])
     # dnac_status = session['dnac'].get('dnac_Token', "") != ""
     # prime_status = session['prime'].get('prime_host', "") != ""
     # bmc_status = session['bmc'].get('bmc_Token', "") != ""
-    # mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
+    mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
 
     if 'events' in session['dnac'] or 'events' in session['prime']:
         return render_template('portal/home.html', dnac_status=dnac_status,
@@ -207,8 +207,8 @@ def events():
 
     q.put(lambda: create_Bmc_Incident_Dnac(bmc, dnac_events))
     q.put(lambda: create_Bmc_Incident_Prime(bmc, prime_events))
-    q.put(lambda: send_Teams_Message_Dnac(teams_url, dnac_events))
-    q.put(lambda: send_Teams_Message_Prime(teams_url, prime_events))
+    # q.put(lambda: send_Teams_Message_Dnac(teams_url, dnac_events))
+    # q.put(lambda: send_Teams_Message_Prime(teams_url, prime_events))
 
     events = dnac_events + prime_events
 

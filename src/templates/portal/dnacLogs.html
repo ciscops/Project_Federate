@@ -1,12 +1,39 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<ul style="list-style-type:none;">
+
+<div class="row">
 {% for event in dnac_events %}
-<li>
-  <h3>{{event.name}}</h3>
-  <p>{{event.description}}</p>
-</li>
+    <div class="col-4">
+        <div class="flex flex-left flex-wrap">
+            <div class="panel panel--bordered panel--raised panel--loose base-margin">
+                <h3>{{event.name}}</h3>
+                 <p>{{event.description}}</p>
+             </div>
+        </div>
+     </div>
 {% endfor %}
-</ul>
+ </div>
+<div class="responsive-table">
+    <table class="table table--lined table--wrapped" aria-label="Wrapped table example">
+        <thead>
+            <tr>
+                <th class="sortable">Event Severity<span class="sort-indicator icon-dropdown"></span></th>
+                <th>Event Name</th>
+                <th>Event Description</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for event in dnac_events %}
+            <tr>
+              <td>{{ event.severity }}</td>
+              <td>{{ event.name }}</td>
+              <td>{{ event.description }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
 {% endblock %}
