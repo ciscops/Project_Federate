@@ -33,6 +33,10 @@ $ git clone https://wwwin-github.cisco.com/gve/GVE_DevNet_DevOps_ITSM_PoV
 ```
 
 
+
+## Run on local machine
+
+
 #### Set up virtual environment
 Create and Enter a Virtual Environment (MacOS)
 ```
@@ -48,7 +52,7 @@ $ export FLASK_ENV=development
 ```
 
 
-#### Validate Setup
+#### Validate setup
 ```
 # If configured correctly, this command should display the available paths of the 
 application
@@ -56,14 +60,29 @@ $ flask routes
 ```
 
 
-
-## Usage
+## Run app
 ```
 # Initialize application database (only needed on first use)
 $ flask init-db
 
 # Start the application
 $ flask run
+```
+
+
+
+## Run on Docker container
+
+
+#### Build container
+```
+$ docker build -t [give docker container name] .
+```
+
+#### Run container
+```
+# -d is an optional tag to run the container in detached mode
+$ docker run -d -p 5000:5000 [name given to docker container]
 ```
 
 
