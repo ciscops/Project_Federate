@@ -87,9 +87,59 @@ $ docker run -d -p 5000:5000 [name given to docker container]
 
 
 
+## Usage
+
+
+#### Access dashboard
+You may access the dashboard by opening the browser of your choice and 
+entering the address 127.0.0.1:5000 
+
+
+#### Log In/Register User
+From here, you may sign in. If you have not registered a user yet, click the 
+Register button on the sidebar and register a username and password Then 
+sign in with those credentials. 
+
+
+#### Using the dashboard
+Once you have signed in, you will be taken to a page to enter your 
+credentials for DNA Center, Prime Infrastructure, BMC Remedy ITSM, and 
+Microsoft Teams channel. Then click the Apply Settings button.
+
+After the settings are applied, the dashboard opens to the home page. At the 
+top of the home page, the connection status to your DNA Center, Prime 
+Infrastructure, BMC Remedy ITSM, and Microsoft Teams channel is displayed. 
+Below the connection statuses, the dashboard displays the number of DNAC and 
+Prime Infrastructure events at the time of logging into the dashboard. 
+
+Clicking on the number of events will open a new page, displaying all the 
+events associated with the system you clicked on.
+
+The home page updates periodically, pulling in the new events from DNAC and 
+Prime Infrastructure. The number updates to show the number of new events 
+that have occurred since the last time the dashboard updated. If no new 
+events have occurred, it will show 0 new events. Clicking on the number will
+still take you to the page displaying all the events associated with the 
+system you clicked on. Every event that has occurred since logging on will 
+still be visible on these pages.
+
+
+
 ### Screenshots
 
 ![/IMAGES/0image.png](/IMAGES/0image.png)
+
+Login page
+
+![/IMAGES/login.png](/IMAGES/login.png)
+
+Settings page
+
+![/IMAGES/settings.png](/IMAGES/settings.png)
+
+Home page
+
+![/IMAGES/home-page.png](/IMAGES/home-page.png)
 
 
 ### LICENSE
