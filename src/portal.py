@@ -207,8 +207,8 @@ def events():
 
     q.put(lambda: create_Bmc_Incident_Dnac(bmc, dnac_events))
     q.put(lambda: create_Bmc_Incident_Prime(bmc, prime_events))
-    # q.put(lambda: send_Teams_Message_Dnac(teams_url, dnac_events))
-    # q.put(lambda: send_Teams_Message_Prime(teams_url, prime_events))
+    q.put(lambda: send_Teams_Message_Dnac(teams_url, dnac_events))
+    q.put(lambda: send_Teams_Message_Prime(teams_url, prime_events))
 
     events = dnac_events + prime_events
 
