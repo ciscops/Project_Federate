@@ -27,12 +27,13 @@ from src.checkIp import checkIp
 from datetime import datetime
 import json
 import urllib3
-import pprint
 import threading
 import queue
 
+
 urllib3.disable_warnings()
 
+#need queue for multiprocessing the different API calls
 q = queue.Queue()
 def do_queue():
     global q
@@ -54,11 +55,19 @@ except KeyboardInterrupt:
 @bp.route('/', methods=('GET', 'POST'))
 @login_required
 def home():
+    '''the home page will display the statuses of dnac, prime,
+    bmc, and microsoft teams and the number of events pulled from
+    dnac and prime
+    this is the page that will load once the user has logged in
+    and entered all the credentials'''
+    #check if all fields were filled out on settings page
     required_keys = ["dnac", "prime", "bmc", "mksft_teams"]
     for key in required_keys:
         if key not in session:
+            #if a field was not filled out, reload settings page
             return redirect(url_for('portal.settings'))
 
+    #flask session is immutable, so we have to reassign its value to change it
     dnac = session["dnac"]
     prime = session["prime"]
     dnac["events"] = []
@@ -66,13 +75,10 @@ def home():
     session["dnac"] = dnac
     session["prime"] = prime
 
+    #get connection status of dnac, prime, bmc, and microsoft teams
     dnac_status = checkIp(session["dnac"]["dnac_host"])
     prime_status = checkIp(session["prime"]["prime_host"])
     bmc_status = checkIp(session["bmc"]["bmc_host"])
-    # mksft_teams_status = checkConnection(session["mksft_teams"]["webhook_url"])
-    # dnac_status = session['dnac'].get('dnac_Token', "") != ""
-    # prime_status = session['prime'].get('prime_host', "") != ""
-    # bmc_status = session['bmc'].get('bmc_Token', "") != ""
     mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
 
     if 'events' in session['dnac'] or 'events' in session['prime']:
@@ -158,6 +164,7 @@ def settings():
 @bp.route('/dnacLogs', methods=('GET',))
 @login_required
 def dnacLogs():
+    #the dnac logs page needs to be passed the dnac events
     dnac_events = session["dnac"]["events"]
     return render_template('portal/dnacLogs.html', dnac_events=dnac_events)
 
@@ -165,6 +172,7 @@ def dnacLogs():
 @bp.route('/primeLogs', methods=('GET',))
 @login_required
 def primeLogs():
+    #the prime logs page needs to be passed the prime events
     prime_events = session["prime"]["events"]
     return render_template('portal/primeLogs.html', prime_events=prime_events)
 
@@ -172,30 +180,42 @@ def primeLogs():
 @bp.route('/events', methods=('GET',))
 @login_required
 def events():
+    '''retrieve the events from dnac and prime, then pull the information
+    necessary from those events, create bmc incident tickets, and send
+    microsoft teams messages for each event'''
     dnac = session['dnac']
     prime = session['prime']
     dnac['events'] = get_Dna_Events(session['dnac'])
     prime['events'] = get_Prime_Events(session['prime'])
     dnac_events = []
     prime_events = []
-    for dnac_event in dnac["events"]:
-        dnac_evt = {
-            "id": dnac_event["eventId"],
-            "name": dnac_event["name"],
-            "description": dnac_event["description"],
-            "severity": dnac_event["severity"],
-            "type": "dnac"
-        }
-        dnac_events.append(dnac_evt)
-    for prime_event in prime["events"]:
-        prime_evt = {
-            "id": prime_event['queryResponse']['entity'][0]['eventsDTO']['@id'],
-            "name": prime_event['queryResponse']['entity'][0]['eventsDTO']['condition']['value'],
-            "description": prime_event['queryResponse']['entity'][0]['eventsDTO']['description'],
-            "severity": prime_event['queryResponse']['entity'][0]['eventsDTO']['severity'],
-            "type": "prime"
-        }
-        prime_events.append(prime_evt)
+    #parse through object api call retrieved to condense the size of the dnac events
+    try:
+        for dnac_event in dnac["events"]:
+            dnac_evt = {
+                "id": dnac_event["eventId"],
+                "name": dnac_event["name"],
+                "description": dnac_event["description"],
+                "severity": dnac_event["severity"],
+                "type": "dnac"
+            }
+            #add sized down event to dnac_events list
+            dnac_events.append(dnac_evt)
+        #parse through object api call retrieved to condense the size of the prime events
+        for prime_event in prime["events"]:
+            prime_evt = {
+                "id": prime_event['queryResponse']['entity'][0]['eventsDTO']['@id'],
+                "name": prime_event['queryResponse']['entity'][0]['eventsDTO']['condition']['value'],
+                "description": prime_event['queryResponse']['entity'][0]['eventsDTO']['description'],
+                "severity": prime_event['queryResponse']['entity'][0]['eventsDTO']['severity'],
+                "type": "prime"
+            }
+            #add sized down event to prime_events list
+            prime_events.append(prime_evt)
+
+    except KeyError as e:
+        #if key does not exist in event object, print out error
+        print(str(e))
 
     dnac["events"] = dnac_events
     prime["events"] = prime_events
@@ -205,32 +225,12 @@ def events():
     teams_url = session['mksft_teams']['webhook_url']
     session.modified = True
 
+    #add function calls to multiprocessing queue so api calls are run in parallel
     q.put(lambda: create_Bmc_Incident_Dnac(bmc, dnac_events))
     q.put(lambda: create_Bmc_Incident_Prime(bmc, prime_events))
     q.put(lambda: send_Teams_Message_Dnac(teams_url, dnac_events))
     q.put(lambda: send_Teams_Message_Prime(teams_url, prime_events))
 
     events = dnac_events + prime_events
-
-    '''try:
-        events = []
-        for dnac_event in session['dnac']['events']:
-            evt = {
-                "id": dnac_event["id"],
-                "name": dnac_event["name"],
-                "description": dnac_event["description"],
-                "type": "dnac"
-            }
-            events.append(evt)
-        for prime_event in session['prime']['events']:
-            evt = {
-                "id": prime_event['queryResponse']['entity'][0]['eventsDTO']['@id'],
-                "name": prime_event['queryResponse']['entity'][0]['eventsDTO']['condition']['value'],
-                "description": prime_event['queryResponse']['entity'][0]['eventsDTO']['description'],
-                "type": "prime"
-            }
-            events.append(evt)
-    except KeyError as e:
-        print(str(e))'''
 
     return jsonify(events)

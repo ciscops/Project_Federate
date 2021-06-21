@@ -2,6 +2,7 @@
 import sys
 import nmap, socket
 
+#check if the IP address or url is accessible
 def checkIp(ip_addr):
     scanner = nmap.PortScanner()
 
