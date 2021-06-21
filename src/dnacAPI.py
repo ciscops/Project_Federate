@@ -6,6 +6,7 @@ import json
 urllib3.disable_warnings()
 
 
+#Retrieve DNAC token to use for DNAC API calls
 def get_Dna_Token(dnac):
 	"""
 	Intent-based Authentication API call
@@ -30,6 +31,7 @@ def get_Dna_Token(dnac):
 	return result
 
 
+#API call to retrieve DNAC events
 def get_Dna_Events(dnac):
 	url = 'https://{}/dna/intent/api/v1/events?tags=ASSURANCE'.format(dnac['dnac_host'])
 	headers = {

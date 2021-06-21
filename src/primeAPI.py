@@ -14,10 +14,13 @@ urllib3.disable_warnings()
 # FUNCTIONS #
 #############
 
+
 def get_Prime_Events(prime):
+    #retrieve prime events with prime api
     base_uri = 'https://' + prime['prime_host']
     user = prime['prime_username']
     password = prime['prime_password']
+    #depending on amount of events in your environment, you may need to use pagination to retrieve results
     rest_path = '/webacs/api/v4/data/Events.json?.full=true&.maxResults=20&.firstResult=80'
     # rest_path = '/webacs/api/v4/data/Events.json'
 
@@ -29,6 +32,7 @@ def get_Prime_Events(prime):
     event_list = []
 
     for event in events:
+        #prime returns the url to make api calls to retrieve information about specific events
         url = event['@url'] + '.json'
         response = requests.get(url, auth=(user, password), verify=False)
 

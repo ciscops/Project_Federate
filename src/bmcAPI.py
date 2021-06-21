@@ -3,6 +3,7 @@ import requests
 import urllib3
 import json
 
+#commented out portions make the API request and formats the response in JSON
 def get_Bmc_Token(bmc):
     url = 'http://{}/api/jwt/login'.format(bmc['bmc_host'])
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -23,6 +24,9 @@ def get_Bmc_Token(bmc):
     result = 'TOKEN GOES HERE'
     return result
 
+
+#This function creates a BMC incident ticket for DNAC events
+#commented out portion makes the API request
 def create_Bmc_Incident_Dnac(bmc, events):
     url = 'http://{}/api/arsys/v1/entry/HPD:IncidentInterface_Create?fields=values(Incident Number)'.format(bmc['bmc_host'])
     headers = {
@@ -47,6 +51,10 @@ def create_Bmc_Incident_Dnac(bmc, events):
             # resp = requests.post(url, headers=headers, data=body, verify=False)
             print('BMC incident API call with DNAC event: \n URL: {} \n Headers: {} \n Body: {} \n\n'.format(url, headers, body))
 
+
+#This function creates a BMC incident ticket for Prime events
+#It is separate from the DNAC ticket because its severity field has different values
+#commented out portion makes the API request
 def create_Bmc_Incident_Prime(bmc, events):
     url = 'http://{}/api/arsys/v1/entry/HPD:IncidentInterface_Create?fields=values(Incident Number)'.format(bmc['bmc_host'])
     headers = {
@@ -69,4 +77,5 @@ def create_Bmc_Incident_Prime(bmc, events):
                     }
                 }
 
+            # resp = requests.post(url, headers=headers, data=body, verify=False)
             print('BMC incident API call with Prime event: \n URL: {} \n Headers: {} \n Body: {} \n\n'.format(url, headers, body))
