@@ -2,18 +2,6 @@
 
 {% block content %}
 
-<div class="row">
-{% for event in dnac_events %}
-    <div class="col-4">
-        <div class="flex flex-left flex-wrap">
-            <div class="panel panel--bordered panel--raised panel--loose base-margin">
-                <h3>{{event.name}}</h3>
-                 <p>{{event.description}}</p>
-             </div>
-        </div>
-     </div>
-{% endfor %}
- </div>
 <div class="responsive-table">
     <table class="table table--lined table--wrapped" aria-label="Wrapped table example">
         <thead>

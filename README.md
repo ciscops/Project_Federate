@@ -34,14 +34,56 @@ $ git clone https://wwwin-github.cisco.com/gve/GVE_DevNet_DevOps_ITSM_PoV
 
 
 
-## Run on local machine
+## Run on local machine (Not Recommended)
+
+
+#### Install Dependencies with Package Manager
+<b>Mac OS</b>
+Install Homebrew
+Find documentation and instructions for installing Homebrew on https://brew.sh/
+
+Then install nmap 
+```
+$ brew install nmap
+```
+
+
+<b>Windows</b>
+Install Chocolatey
+Find documentation and instructions for install Chocolatey on https://chocolatey.org/
+
+Then install nmap
+```
+$ choco install nmap
+```
+
+
+<b>Linux</b>
+Install nmap with apt-get
+```
+$ apt-get install nmap
+```
 
 
 #### Set up virtual environment
-Create and Enter a Virtual Environment (MacOS)
+Create and Enter a Virtual Environment (MacOS and Linux)
 ```
 $ python3 -m venv <NAME>
 $ source <NAME>/bin/activate
+```
+
+
+Create and Enter a Virtual Environment (Windows)
+```
+$ py -m venv <NAME>
+$ .\env\Scripts\activate
+```
+
+
+#### Install Python modules
+Use pip to install the requirements listed in the requirements.txt file
+```
+$ pip install -r requirements.txt
 ```
 
 
@@ -60,7 +102,7 @@ $ flask routes
 ```
 
 
-## Run app
+#### Run app
 ```
 # Initialize application database (only needed on first use)
 $ flask init-db
@@ -71,7 +113,7 @@ $ flask run
 
 
 
-## Run on Docker container
+## Run on Docker container (Recommended)
 
 
 #### Build container
@@ -104,7 +146,9 @@ sign in with those credentials.
 #### Using the dashboard
 Once you have signed in, you will be taken to a page to enter your 
 credentials for DNA Center, Prime Infrastructure, BMC Remedy ITSM, and 
-Microsoft Teams channel. Then click the Apply Settings button.
+Microsoft Teams channel. When entering the credentials for these systems do 
+not include http or https at the start of the ip address or url. Then click 
+the Apply Settings button.
 
 After the settings are applied, the dashboard opens to the home page. At the 
 top of the home page, the connection status to your DNA Center, Prime 
@@ -141,6 +185,11 @@ Home page
 
 ![/IMAGES/home-page.png](/IMAGES/home-page.png)
 
+Events logs pages
+
+![/IMAGES/dnac-logs.png](/IMAGES/dnac-logs.png)
+
+![/IMAGES/prime-logs.png](/IMAGES/prime-logs.png)
 
 ### LICENSE
 
