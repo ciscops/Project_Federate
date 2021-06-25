@@ -67,19 +67,28 @@ def home():
             #if a field was not filled out, reload settings page
             return redirect(url_for('portal.settings'))
 
-    #flask session is immutable, so we have to reassign its value to change it
-    dnac = session["dnac"]
-    prime = session["prime"]
-    dnac["events"] = []
-    prime["events"] = []
-    session["dnac"] = dnac
-    session["prime"] = prime
-
     #get connection status of dnac, prime, bmc, and microsoft teams
     dnac_status = checkIp(session["dnac"]["dnac_host"])
     prime_status = checkIp(session["prime"]["prime_host"])
     bmc_status = checkIp(session["bmc"]["bmc_host"])
     mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
+
+    #flask session is immutable, so we have to reassign its value to change it
+    dnac = session["dnac"]
+    prime = session["prime"]
+    bmc = session["bmc"]
+    mksft_teams = session["mksft_teams"]
+
+    dnac["events"] = []
+    prime["events"] = []
+
+    dnac["status"] = dnac_status
+    prime["status"] = prime_status
+    bmc["status"] = bmc_status
+    mksft_teams["status"] = mksft_teams_status
+
+    session["dnac"] = dnac
+    session["prime"] = prime
 
     if 'events' in session['dnac'] or 'events' in session['prime']:
         return render_template('portal/home.html', dnac_status=dnac_status,
@@ -185,8 +194,13 @@ def events():
     microsoft teams messages for each event'''
     dnac = session['dnac']
     prime = session['prime']
-    dnac['events'] = get_Dna_Events(session['dnac'])
-    prime['events'] = get_Prime_Events(session['prime'])
+
+    if dnac['status']:
+        dnac['events'] = get_Dna_Events(session['dnac'])
+
+    if prime['status']:
+        prime['events'] = get_Prime_Events(session['prime'])
+
     dnac_events = []
     prime_events = []
     #parse through object api call retrieved to condense the size of the dnac events
@@ -219,10 +233,13 @@ def events():
 
     dnac["events"] = dnac_events
     prime["events"] = prime_events
+
     session['dnac'] = dnac
     session['prime'] = prime
+
     bmc = session['bmc']
     teams_url = session['mksft_teams']['webhook_url']
+
     session.modified = True
 
     #add function calls to multiprocessing queue so api calls are run in parallel
