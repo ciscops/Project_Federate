@@ -39,7 +39,11 @@ def do_queue():
     global q
     while True:
         job = q.get()
-        job()
+        try:
+            job()
+        except Exception as e:
+            print("Failed a job")
+            print(str(e))
         q.task_done()
 
 consumer = threading.Thread(target=do_queue)
@@ -197,6 +201,7 @@ def events():
 
     if dnac['status']:
         dnac['events'] = get_Dna_Events(session['dnac'])
+        print(dnac['events'])
 
     if prime['status']:
         prime['events'] = get_Prime_Events(session['prime'])
@@ -215,6 +220,10 @@ def events():
             }
             #add sized down event to dnac_events list
             dnac_events.append(dnac_evt)
+    except Exception as e:
+        #if key does not exist in event object, print out error
+        print(str(e))
+    try:
         #parse through object api call retrieved to condense the size of the prime events
         for prime_event in prime["events"]:
             prime_evt = {
@@ -227,7 +236,7 @@ def events():
             #add sized down event to prime_events list
             prime_events.append(prime_evt)
 
-    except KeyError as e:
+    except Exception as e:
         #if key does not exist in event object, print out error
         print(str(e))
 
