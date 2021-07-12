@@ -201,7 +201,6 @@ def events():
 
     if dnac['status']:
         dnac['events'] = get_Dna_Events(session['dnac'])
-        print(dnac['events'])
 
     if prime['status']:
         prime['events'] = get_Prime_Events(session['prime'])
