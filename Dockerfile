@@ -9,6 +9,6 @@ RUN apt-get -y update && apt-get -y install nmap
 ENV FLASK_ENV development
 ENV FLASK_APP src
 
-CMD flask init-db
+RUN flask init-db
 EXPOSE 5000
 CMD flask run --host 0.0.0.0
