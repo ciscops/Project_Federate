@@ -259,3 +259,28 @@ def events():
     events = dnac_events + prime_events
 
     return jsonify(events)
+
+
+@bp.route('/dnacTicket', methods=('GET', 'POST'))
+@login_required
+def dnacTicket():
+    #generate a BMC Remedy ticket for a DNAC event
+    print("dnac ticket!")
+    bmc = session["bmc"]
+    dnac_events = session["dnac"]["events"]
+
+    resp = create_Bmc_Incident_Dnac(bmc, dnac_events)
+
+    return resp
+
+
+@bp.route('/primeTicket', methods=('GET', 'POST'))
+@login_required
+def primeTicket():
+    #generate a BMC Remedy ticket for a Prime event
+    bmc = session["bmc"]
+    prime_events = session["prime"]["events"]
+
+    resp = create_Bmc_Incident_Prime(bmc, prime_events)
+
+    return resp

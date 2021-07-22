@@ -49,7 +49,14 @@ def create_Bmc_Incident_Dnac(bmc, events):
             }
         }
             # resp = requests.post(url, headers=headers, data=body, verify=False)
-            print('BMC incident API call with DNAC event: \n URL: {} \n Headers: {} \n Body: {} \n\n'.format(url, headers, body))
+            resp = {
+                "URL": url,
+                "Headers": headers,
+                "Body": body
+            }
+
+            print('BMC incident API call with DNAC event: \n {}'.format(resp))
+            return resp
 
 
 #This function creates a BMC incident ticket for Prime events
@@ -78,4 +85,11 @@ def create_Bmc_Incident_Prime(bmc, events):
                 }
 
             # resp = requests.post(url, headers=headers, data=body, verify=False)
-            print('BMC incident API call with Prime event: \n URL: {} \n Headers: {} \n Body: {} \n\n'.format(url, headers, body))
+            resp = {
+                "URL": url,
+                "Headers": headers,
+                "Body": body
+            }
+
+            print('BMC incident API call with Prime event: \n {}'.format(resp))
+            return resp

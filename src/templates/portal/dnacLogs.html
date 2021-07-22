@@ -9,6 +9,7 @@
                 <th>Event Severity<span class="sort-indicator icon-dropdown" onclick="sortTable()"></span></th>
                 <th>Event Name</th>
                 <th>Event Description</th>
+                <th>Create BMC Incident</th>
             </tr>
         </thead>
         <tbody>
@@ -17,6 +18,7 @@
               <td>{{ event.severity }}</td>
               <td>{{ event.name }}</td>
               <td>{{ event.description }}</td>
+              <td><button type="button" onclick="createIncident()">Create Incident</button></td>
             </tr>
         {% endfor %}
         </tbody>
@@ -58,6 +60,19 @@ function sortTable() {
       switching = true;
     }
   }
+}
+
+function createIncident() {
+  //Create BMC incident ticket for DNAC event
+  const http = new XMLHttpRequest();
+  const url = '{{url_for("portal.dnacTicket")}}'; // call python function to create dnac ticket from portal.py
+  http.open("POST", url)
+  http.send();
+  http.onload = function() {
+    const resp = http.response; //if you want to do something with the api response
+  }
+
+  alert("BMC Incident created for DNAC"); //pop up window to indicate function has run
 }
 </script>
 {% endblock %}
