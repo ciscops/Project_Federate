@@ -35,35 +35,24 @@ $ git clone https://wwwin-github.cisco.com/gve/GVE_DevNet_DevOps_ITSM_PoV
 
 
 
+## Run on Docker container (Recommended)
+
+
+#### Build container
+```
+$ docker build -t [give docker container name] .
+```
+
+
+#### Run container
+```
+# -d is an optional tag to run the container in detached mode
+$ docker run -d -p 5000:5000 [name given to docker container]
+```
+
+
+
 ## Run on local machine (Not Recommended)
-
-
-#### Install Dependencies with Package Manager
-<b>Mac OS</b>
-Install Homebrew
-Find documentation and instructions for installing Homebrew on https://brew.sh/
-
-Then install nmap 
-```
-$ brew install nmap
-```
-
-
-<b>Windows</b>
-Install Chocolatey
-Find documentation and instructions for install Chocolatey on https://chocolatey.org/
-
-Then install nmap
-```
-$ choco install nmap
-```
-
-
-<b>Linux</b>
-Install nmap with apt-get
-```
-$ apt-get install nmap
-```
 
 
 #### Set up virtual environment
@@ -72,7 +61,6 @@ Create and Enter a Virtual Environment (MacOS and Linux)
 $ python3 -m venv <NAME>
 $ source <NAME>/bin/activate
 ```
-
 
 Create and Enter a Virtual Environment (Windows)
 ```
@@ -110,22 +98,6 @@ $ flask init-db
 
 # Start the application
 $ flask run
-```
-
-
-
-## Run on Docker container (Recommended)
-
-
-#### Build container
-```
-$ docker build -t [give docker container name] .
-```
-
-#### Run container
-```
-# -d is an optional tag to run the container in detached mode
-$ docker run -d -p 5000:5000 [name given to docker container]
 ```
 
 
