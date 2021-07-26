@@ -130,6 +130,80 @@ $ docker run -d -p 5000:5000 [name given to docker container]
 
 
 
+## Set up BMC Ticket Automation
+This prototype was written without an instance of BMC, so the 
+API calls currently are disabled. To enable the BMC API calls, 
+the code must be modified in the following ways in order to 
+retrieve an API token and then create incident tickets for DNAC 
+and Prime. All of the modifications take place in src/bmcAPI.py.
+
+
+#### Modify get_Bmc_Token function
+Uncomment lines 11-12 to make the api request to retrieve the 
+token.
+```python
+# resp = requests.post(url, auth=(bmc['bmc_username'], bmc['bmc_password']),
+    # headers=headers, verify=False)
+```
+
+Then uncomment lines 15-21 to extract the token from the API 
+response.
+```python
+'''if 'error' in resp.json():
+    print('ERROR: Failed to retrieve Access Token!')
+    print('REASON: {}'.format(resp.json()['error']))
+
+    result = ''
+else:
+    result = resp.json()['Token']'''
+```
+
+Finally, delete line 24 so that the result variable returned is 
+actually the token.
+```python
+result = 'TOKEN GOES HERE'
+```
+
+
+#### Modify create_Bmc_Incident_Dnac function
+Uncomment line 49-50 to make the API request to create the 
+incident ticket for DNAC
+```python
+# resp = requests.post(url, headers=headers, data=body,
+    #verify=False)
+```
+
+Then delete lines 51-55 so that the variable that is returned 
+is the API response
+```python
+resp = {
+    "URL": url,
+    "Headers": headers,
+     "Body": body
+}
+```
+
+
+#### Modify create_Bmc_Incident_Prime function
+Uncomment lines 84-86 to make the API request to create the 
+incident ticket for Prime
+```python
+# resp = requests.post(url, headers=headers, data=body, 
+    #verify=False)
+```
+
+Then delete lines 86-90 so that the variable that is returned 
+is the API response
+```python
+resp = {
+    "URL": url,
+    "Headers": headers,
+    "Body": body
+}
+```
+
+
+
 ## Usage
 
 

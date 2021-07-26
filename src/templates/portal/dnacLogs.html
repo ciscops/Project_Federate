@@ -4,75 +4,77 @@
 
 <div class="responsive-table">
   <table class="table table--lined table--wrapped" aria-label="Wrapped table example" id="DNACLogs">
-        <thead>
-            <tr>
-                <th>Event Severity<span class="sort-indicator icon-dropdown" onclick="sortTable()"></span></th>
-                <th>Event Name</th>
-                <th>Event Description</th>
-                <th>Create BMC Incident</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for event in dnac_events %}
-            <tr>
-              <td>{{ event.severity }}</td>
-              <td>{{ event.name }}</td>
-              <td>{{ event.description }}</td>
-              <td><button type="button" onclick="createIncident()">Create Incident</button></td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <thead>
+      <tr>
+        <th>Event Severity<span class="sort-indicator icon-dropdown" onclick="sortTable()"></span></th>
+        <th>Event Name</th>
+        <th>Event Description</th>
+        <th>Create BMC Incident</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for dnac_event in dnac_events %}
+      <tr>
+        <td>{{ dnac_event.severity }}</td>
+        <td>{{ dnac_event.name }}</td>
+        <td>{{ dnac_event.description }}</td>
+        <td><button type="button" onclick="createIncident({{ dnac_event|safe }})">Create Incident</button></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 
 
 <script>
-function sortTable() {
-  var table, rows, switching, i, x, y, shouldSwitch;
-  table = document.getElementById("DNACLogs");
-  switching = true;
-  /* Make a loop that will continue until
-  no switching has been done: */
-  while (switching) {
-    // Start by saying: no switching is done:
-    switching = false;
-    rows = table.rows;
-    /* Loop through all table rows (except the
-    first, which contains table headers): */
-    for (i = 1; i < (rows.length - 1); i++) {
-      // Start by saying there should be no switching:
-      shouldSwitch = false;
-      /* Get the two elements you want to compare,
-      one from current row and one from the next: */
-      x = rows[i].getElementsByTagName("TD")[0];
-      y = rows[i + 1].getElementsByTagName("TD")[0];
-      // Check if the two rows should switch place,
-      if (Number(x.innerHTML) > Number(y.innerHTML)) {
-          // If so, mark as a switch and break the loop
-          shouldSwitch = true;
-          break;
-      }
-    }
-    if (shouldSwitch) {
-      /* If a switch has been marked, make the switch
-      and mark that a switch has been done: */
-      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+  function sortTable() {
+      var table, rows, switching, i, x, y, shouldSwitch;
+      table = document.getElementById("DNACLogs");
       switching = true;
+      /* Make a loop that will continue until
+ no switching has been done: */
+      while (switching) {
+          // Start by saying: no switching is done:
+          switching = false;
+          rows = table.rows;
+          /* Loop through all table rows (except the
+ first, which contains table headers): */
+          for (i = 1; i < (rows.length - 1); i++) {
+              // Start by saying there should be no switching:
+              shouldSwitch = false;
+              /* Get the two elements you want to compare,
+ one from current row and one from the next: */
+              x = rows[i].getElementsByTagName("TD")[0];
+              y = rows[i + 1].getElementsByTagName("TD")[0];
+              // Check if the two rows should switch place,
+              if (Number(x.innerHTML) > Number(y.innerHTML)) {
+                  // If so, mark as a switch and break the loop
+                  shouldSwitch = true;
+                  break;
+                }
+            }
+          if (shouldSwitch) {
+              /* If a switch has been marked, make the switch
+ and mark that a switch has been done: */
+              rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+              switching = true;
+            }
+        }
     }
-  }
-}
 
-function createIncident() {
-  //Create BMC incident ticket for DNAC event
-  const http = new XMLHttpRequest();
-  const url = '{{url_for("portal.dnacTicket")}}'; // call python function to create dnac ticket from portal.py
-  http.open("POST", url)
-  http.send();
-  http.onload = function() {
-    const resp = http.response; //if you want to do something with the api response
-  }
+  function createIncident(dnac_event) {
+      //Create BMC incident ticket for DNAC event
+      const http = new XMLHttpRequest();
+      const url = '{{url_for("portal.dnacTicket")}}'; // call python function to create dnac ticket from portal.py
+      http.open("POST", url, true);
+      http.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+      http.send(JSON.stringify(dnac_event));
+      http.onload = function() {
+          const resp = http.response; //if you want to do something with the api response
+        }
 
-  alert("BMC Incident created for DNAC"); //pop up window to indicate function has run
-}
+      alert("BMC Incident created for DNAC"); //pop up window to indicate function has run
+    }
 </script>
+
 {% endblock %}

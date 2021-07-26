@@ -179,6 +179,7 @@ def settings():
 def dnacLogs():
     #the dnac logs page needs to be passed the dnac events
     dnac_events = session["dnac"]["events"]
+    print(dnac_events)
     return render_template('portal/dnacLogs.html', dnac_events=dnac_events)
 
 
@@ -251,8 +252,6 @@ def events():
     session.modified = True
 
     #add function calls to multiprocessing queue so api calls are run in parallel
-    q.put(lambda: create_Bmc_Incident_Dnac(bmc, dnac_events))
-    q.put(lambda: create_Bmc_Incident_Prime(bmc, prime_events))
     q.put(lambda: send_Teams_Message_Dnac(teams_url, dnac_events))
     q.put(lambda: send_Teams_Message_Prime(teams_url, prime_events))
 
@@ -265,11 +264,10 @@ def events():
 @login_required
 def dnacTicket():
     #generate a BMC Remedy ticket for a DNAC event
-    print("dnac ticket!")
+    dnac_event = request.json
     bmc = session["bmc"]
-    dnac_events = session["dnac"]["events"]
 
-    resp = create_Bmc_Incident_Dnac(bmc, dnac_events)
+    resp = create_Bmc_Incident_Dnac(bmc, dnac_event)
 
     return resp
 
@@ -278,8 +276,8 @@ def dnacTicket():
 @login_required
 def primeTicket():
     #generate a BMC Remedy ticket for a Prime event
+    prime_event = request.json
     bmc = session["bmc"]
-    prime_events = session["prime"]["events"]
 
     resp = create_Bmc_Incident_Prime(bmc, prime_events)
 
