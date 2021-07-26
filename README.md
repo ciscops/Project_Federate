@@ -260,11 +260,12 @@ Home page
 
 ![/IMAGES/home-page.png](/IMAGES/home-page.png)
 
-Events logs pages
+Events logs pages and alert
 
-![/IMAGES/dnac-logs.png](/IMAGES/dnac-logs.png)
+![/IMAGES/logs.png](/IMAGES/logs.png)
 
-![/IMAGES/prime-logs.png](/IMAGES/prime-logs.png)
+![/IMAGES/logs-alert.png](/IMAGES/logs-alert.png)
+
 
 ### LICENSE
 
