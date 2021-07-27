@@ -15,9 +15,9 @@
     <tbody>
       {% for prime_event in prime_events %}
       <tr>
-        <td>{{ event.severity }}</td>
-        <td>{{ event.name }}</td>
-        <td>{{ event.description }}</td>
+        <td>{{ prime_event.severity }}</td>
+        <td>{{ prime_event.name }}</td>
+        <td>{{ prime_event.description }}</td>
         <td><button type="button" onclick="createIncident({{ prime_event|safe }})">Create Incident</td>
       </tr>
       {% endfor %}
