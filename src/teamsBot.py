@@ -1,25 +1,50 @@
 #!/usr/bin/env python3
 import pymsteams
 
-#send teams message about dnac events
-def send_Teams_Message_Dnac(mksft_teams, events):
-    myTeamsMessage = pymsteams.connectorcard(mksft_teams)
 
-    for event in events:
-        myTeamsMessage.text('DNAC Event: ' + event['name'] + ': ' + event['description'])
-        myTeamsMessage.send()
-
-
-#send teams message about prime events <- i think I can combine this into the above function
-def send_Teams_Message_Prime(mksft_teams, events):
+#send teams message about events
+def send_Teams_Message(mksft_teams, events):
     myTeamsMessage = pymsteams.connectorcard(mksft_teams)
 
     for event in events:
         event_name = event['name']
         event_description = event['description']
 
-        myTeamsMessage.text('Prime Event: ' + event_name + ': ' + event_description)
+        myTeamsMessage.text(event['type'] + ' event: ' + event_name + ': ' + event_description)
         myTeamsMessage.send()
+
+
+# #send teams message about dnac events
+# def send_Teams_Message_Dnac(mksft_teams, events):
+#     myTeamsMessage = pymsteams.connectorcard(mksft_teams)
+
+#     for event in events:
+#         myTeamsMessage.text('DNAC Event: ' + event['name'] + ': ' + event['description'])
+#         myTeamsMessage.send()
+
+
+# #send teams message about prime events <- i think I can combine this into the above function
+# def send_Teams_Message_Prime(mksft_teams, events):
+#     myTeamsMessage = pymsteams.connectorcard(mksft_teams)
+
+#     for event in events:
+#         event_name = event['name']
+#         event_description = event['description']
+
+#         myTeamsMessage.text('Prime Event: ' + event_name + ': ' + event_description)
+#         myTeamsMessage.send()
+
+
+# #send teams message about EPNM events <- i think I can combine this into the above function
+# def send_Teams_Message_Prime(mksft_teams, events):
+#     myTeamsMessage = pymsteams.connectorcard(mksft_teams)
+
+#     for event in events:
+#         event_name = event['name']
+#         event_description = event['description']
+
+#         myTeamsMessage.text('Prime Event: ' + event_name + ': ' + event_description)
+#         myTeamsMessage.send()
 
 
 #to get status of microsoft teams channel

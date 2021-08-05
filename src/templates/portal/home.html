@@ -47,6 +47,17 @@
 											<span class="icon-exit"></span>
 											{% endif %}
 									</td>
+									<td><h5>EPNM:</h5></td>
+									<td>
+										{% if epnm_status == True %}
+										<button class="btn btn--circle btn--success btn--large">
+											<span class="icon-check"></span>
+										</button>
+										{% else %}
+										<button class="btn btn--circle btn--danger btn--large">
+											<span class="icon-exit"></span>
+											{% endif %}
+									</td>
 								</tr>
 								<tr>
 									<td><h5>BMC Remedy:</h5></td>
@@ -93,7 +104,7 @@
 				<div class="col-2"></div>
 			</div>
 			<div class="row base-margin-bottom">
-				<div class="col-2"></div>
+				<!-- <div class="col-2"></div> -->
 				<div class="col-4">
           <h4><u>DNA-Center</u></h4>
 					<script>
@@ -108,9 +119,11 @@
                 http.onload = function() {
                   const dnac_size = document.getElementById("dnacsize");
                   const prime_size = document.getElementById("primesize");
+				  const epnm_size = document.getElementById("epnmsize");
                   const response_text = http.response;
                   var dnac_events_len = 0;
                   var prime_events_len = 0;
+				  var epnm_events_len = 0;
                   let new_events = [];
                   if(response_text != "") {
                     try {
@@ -119,6 +132,7 @@
                     catch(err) {
                       dnac_size.innerHTML = "There was an error retrieving DNAC events";
                       prime_size.innerHTML = "There was an error retrieving Prime events";
+					  epnm_size.innerHTML = "There was an error retrieving EPNM events";
                       console.log(err);
                       console.log(new_events);
                       return;
@@ -140,12 +154,18 @@
                       {
                         prime_events_len += 1;
                       }
+					  						if (event.type == "epnm")
+                      {
+                        epnm_events_len += 1;
+                      }
 									  }
 								  }
                   dnac_size_string = dnac_events_len + " New DNAC Events"
                   prime_size_string = prime_events_len + " New Prime Events"
+				  epnm_size_string = epnm_events_len + " New EPNM Events"
                   dnac_size.innerHTML = dnac_size_string;
-                  prime_size.innerHTML = prime_size_string; 
+                  prime_size.innerHTML = prime_size_string;
+				  epnm_size.innerHTML = epnm_size_string;  
                 }
 							}
               setTimeout(updateDNACEvents, 0);
@@ -164,8 +184,16 @@
               Retrieving Prime Events...
             </a>
           </h6>
-          </div>
-					<div class="col-2"></div>
+		  </div>
+		  <div class="col-4">
+			<h4><u>EPNM</u></h4>
+			<h6>
+			  <a href="{{ url_for('portal.epnmLogs') }}" id="epnmsize" target="_blank">
+				Retrieving EPNM Events...
+			  </a>
+			</h6>
+			</div>
+					<!-- <div class="col-2"></div> -->
 				</div>
 			</div>
 		</div>

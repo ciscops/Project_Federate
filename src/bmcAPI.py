@@ -92,3 +92,38 @@ def create_Bmc_Incident_Prime(bmc, event):
     print('BMC incident API response with Prime event: \n {}'.format(resp))
 
     return resp
+
+#This function creates a BMC incident ticket for EPNM events
+#It is separate from the DNAC ticket because its severity field has different values
+#commented out portion makes the API request
+def create_Bmc_Incident_Epnm(bmc, event):
+    url = 'http://{}/api/arsys/v1/entry/HPD:IncidentInterface_Create?fields=values(Incident Number)'.format(bmc['bmc_host'])
+    headers = {
+        'Authorization': 'AR-JWT ' + bmc['bmc_Token'],
+        'Content-Type': 'application/json'
+        }
+    severity = event['severity']
+    body = {
+        'values': {
+            'First_Name': 'First Name Here',
+            'Last_Name': 'Last Name Here',
+            'Description': event['description'],
+            'Impact': 'Impact Here',
+            'Urgency': severity,
+            'Status': 'Status Here',
+            'Reported Source': 'Source Here',
+            'Service_Type': 'Service Type Here'
+        }
+    }
+
+    # resp = requests.post(url, headers=headers, data=body,
+        #verify=False)
+    resp = {
+        "URL": url,
+        "Headers": headers,
+        "Body": body
+    }
+
+    print('BMC incident API response with EPNM event: \n {}'.format(resp))
+
+    return resp

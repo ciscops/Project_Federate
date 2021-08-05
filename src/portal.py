@@ -21,6 +21,7 @@ from src.auth import login_required
 from src.db import get_db
 from src.dnacAPI import *
 from src.primeAPI import *
+from src.epnmAPI import *
 from src.bmcAPI import *
 from src.teamsBot import *
 from src.checkIp import checkIp
@@ -74,32 +75,37 @@ def home():
     #get connection status of dnac, prime, bmc, and microsoft teams
     dnac_status = checkIp(session["dnac"]["dnac_host"])
     prime_status = checkIp(session["prime"]["prime_host"])
+    epnm_status = checkIp(session["epnm"]["epnm_host"])
     bmc_status = checkIp(session["bmc"]["bmc_host"])
     mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
 
     #flask session is immutable, so we have to reassign its value to change it
     dnac = session["dnac"]
     prime = session["prime"]
+    epnm = session["epnm"]
     bmc = session["bmc"]
     mksft_teams = session["mksft_teams"]
 
     dnac["events"] = []
     prime["events"] = []
+    epnm["events"] = []
 
     dnac["status"] = dnac_status
     prime["status"] = prime_status
+    epnm["status"] = epnm_status
     bmc["status"] = bmc_status
     mksft_teams["status"] = mksft_teams_status
 
     session["dnac"] = dnac
     session["prime"] = prime
+    session["epnm"] = epnm
 
-    if 'events' in session['dnac'] or 'events' in session['prime']:
+    if 'events' in session['dnac'] or 'events' in session['prime'] or 'events' in session['epnm']:
         return render_template('portal/home.html', dnac_status=dnac_status,
-                prime_status=prime_status, bmc_status=bmc_status,
+                prime_status=prime_status, epnm_status=epnm_status,bmc_status=bmc_status,
                 mksft_teams_status=mksft_teams_status,
                 dnac_events=[],
-                prime_events=[])
+                prime_events=[], epnm_events=[])
 
     return redirect(url_for('portal.home'))
 
@@ -114,6 +120,7 @@ def settings():
     error = None
     dnac = {}
     prime = {}
+    epnm = {}
     bmc = {}
     mksft_teams = {}
 
@@ -121,6 +128,8 @@ def settings():
         dnac = session['dnac']
     if 'prime' in session:
         prime = session['prime']
+    if 'epnm' in session:
+        epnm = session['epnm']
     if 'bmc' in session:
         bmc = session['bmc']
     if 'mksft_teams' in session:
@@ -148,6 +157,15 @@ def settings():
         if request.form.get('prime_password') != "":
             prime["prime_password"] = request.form.get('prime_password')
         session['prime'] = prime
+
+        # Check for any EPNM inputs
+        if request.form.get('epnm_host') != "":
+            epnm["epnm_host"] = request.form.get('epnm_host')
+        if request.form.get('epnm_username') != "":
+            epnm["epnm_username"] = request.form.get('epnm_username')
+        if request.form.get('epnm_password') != "":
+            epnm["epnm_password"] = request.form.get('epnm_password')
+        session['epnm'] = epnm
 
         # Check for any BMC inputs
         if request.form.get('bmc_host') != "":
@@ -191,6 +209,13 @@ def primeLogs():
     return render_template('portal/primeLogs.html', prime_events=prime_events)
 
 
+@bp.route('/epnmLogs', methods=('GET',))
+@login_required
+def epnmLogs():
+    #the EPNM logs page needs to be passed the epnm events
+    epnm_events = session["epnm"]["events"]
+    return render_template('portal/epnmLogs.html', epnm_events=epnm_events)
+
 @bp.route('/events', methods=('GET',))
 @login_required
 def events():
@@ -199,6 +224,7 @@ def events():
     microsoft teams messages for each event'''
     dnac = session['dnac']
     prime = session['prime']
+    epnm = session['epnm']
 
     if dnac['status']:
         dnac['events'] = get_Dna_Events(session['dnac'])
@@ -206,8 +232,12 @@ def events():
     if prime['status']:
         prime['events'] = get_Prime_Events(session['prime'])
 
+    if epnm['status']:
+        epnm['events'] = get_Epnm_Events(session['epnm'])
+
     dnac_events = []
     prime_events = []
+    epnm_events = []
     #parse through object api call retrieved to condense the size of the dnac events
     try:
         for dnac_event in dnac["events"]:
@@ -240,11 +270,31 @@ def events():
         #if key does not exist in event object, print out error
         print(str(e))
 
+
+    try:
+        #parse through object api call retrieved to condense the size of the EPNM events
+        for epnm_event in epnm["events"]:
+            epnm_evt = {
+                "id": epnm_event['queryResponse']['entity'][0]['eventsDTO']['@id'],
+                "name": epnm_event['queryResponse']['entity'][0]['eventsDTO']['condition']['value'],
+                "description": epnm_event['queryResponse']['entity'][0]['eventsDTO']['description'],
+                "severity": epnm_event['queryResponse']['entity'][0]['eventsDTO']['severity'],
+                "type": "epnm"
+            }
+            #add sized down event to epnm_events list
+            epnm_events.append(epnm_evt)
+
+    except Exception as e:
+        #if key does not exist in event object, print out error
+        print(str(e))
+
     dnac["events"] = dnac_events
     prime["events"] = prime_events
+    epnm["events"] = epnm_events
 
     session['dnac'] = dnac
     session['prime'] = prime
+    session['epnm'] = epnm
 
     bmc = session['bmc']
     teams_url = session['mksft_teams']['webhook_url']
@@ -252,10 +302,11 @@ def events():
     session.modified = True
 
     #add function calls to multiprocessing queue so api calls are run in parallel
-    q.put(lambda: send_Teams_Message_Dnac(teams_url, dnac_events))
-    q.put(lambda: send_Teams_Message_Prime(teams_url, prime_events))
+    q.put(lambda: send_Teams_Message(teams_url, dnac_events))
+    q.put(lambda: send_Teams_Message(teams_url, prime_events))
+    q.put(lambda: send_Teams_Message(teams_url, epnm_events))
 
-    events = dnac_events + prime_events
+    events = dnac_events + prime_events + epnm_events
 
     return jsonify(events)
 
@@ -280,5 +331,16 @@ def primeTicket():
     bmc = session["bmc"]
 
     resp = create_Bmc_Incident_Prime(bmc, prime_events)
+
+    return resp
+
+@bp.route('/epnmTicket', methods=('GET', 'POST'))
+@login_required
+def epnmTicket():
+    #generate a BMC Remedy ticket for an EPNM event
+    epnm_event = request.json
+    bmc = session["bmc"]
+
+    resp = create_Bmc_Incident_Epnm(bmc, epnm_events)
 
     return resp
