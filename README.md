@@ -1,7 +1,7 @@
-# GVE_DevNet_DevOps_ITSM_PoV
-This is the source code for the DNA Center and Prime Infrastructure events 
-dashboard. Using the APIs of DNA Center and Prime Infrastructure, we have 
-developed a method to pull the events of DNA Center and Prime Infrastructure. 
+# Project Federate
+This is the source code for the DNA Center, Prime Infrastructure, and EPNM events 
+dashboard. Using the APIs of DNA Center, Prime Infrastructure, and EPNM we have 
+developed a method to pull the events of DNA Center, Prime Infrastructure, and EPNM.
 The events are then displayed onto a dashboard, BMC incident tickets are 
 generated for events of a specified severity, and Teams messages about the 
 events are sent to a specified channel.
@@ -9,10 +9,9 @@ events are sent to a specified channel.
 
 
 ## Contacts
-* Alexander Hoecht
+* Yashar Asgari: yasgari@cisco.com
 * Danielle Stacy
-* Yashar Asgari
-
+* Alexander Hoecht
 
 
 ## Solution Components
@@ -30,7 +29,7 @@ events are sent to a specified channel.
 
 #### Clone the repo
 ```
-$ git clone https://wwwin-github.cisco.com/gve/GVE_DevNet_DevOps_ITSM_PoV
+$ git clone https://github.com/yasgari/Project_Federate
 ```
 
 
