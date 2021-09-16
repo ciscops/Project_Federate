@@ -17,6 +17,7 @@ events are sent to a specified channel.
 ## Solution Components
 * DNA Center API
 * Prime Infrastructure API
+* EPNM API
 * Microsoft Teams
 * BMC API
 * Python 3.9
