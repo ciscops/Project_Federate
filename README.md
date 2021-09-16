@@ -30,7 +30,7 @@ events are sent to a specified channel.
 
 #### Clone the repo
 ```
-$ git clone https://github.com/yasgari/Project_Federate
+$ git clone https://github.com/ciscops/Project_Federate
 ```
 
 
