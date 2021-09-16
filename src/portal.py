@@ -60,13 +60,13 @@ except KeyboardInterrupt:
 @bp.route('/', methods=('GET', 'POST'))
 @login_required
 def home():
-    '''the home page will display the statuses of dnac, prime,
+    '''the home page will display the statuses of dnac, prime, epnm,
     bmc, and microsoft teams and the number of events pulled from
     dnac and prime
     this is the page that will load once the user has logged in
     and entered all the credentials'''
     #check if all fields were filled out on settings page
-    required_keys = ["dnac", "prime", "bmc", "mksft_teams"]
+    required_keys = ["dnac", "prime", "epnm", "bmc", "mksft_teams"]
     for key in required_keys:
         if key not in session:
             #if a field was not filled out, reload settings page
@@ -161,19 +161,31 @@ def settings():
         # Check for any EPNM inputs
         if request.form.get('epnm_host') != "":
             epnm["epnm_host"] = request.form.get('epnm_host')
+        else:
+            epnm["epnm_host"] = 'No-host'
         if request.form.get('epnm_username') != "":
             epnm["epnm_username"] = request.form.get('epnm_username')
+        else:
+            epnm["epnm_username"] = 'No-user'
         if request.form.get('epnm_password') != "":
             epnm["epnm_password"] = request.form.get('epnm_password')
+        else:
+            epnm["epnm_password"] = 'No-pass'
         session['epnm'] = epnm
 
         # Check for any BMC inputs
         if request.form.get('bmc_host') != "":
             bmc["bmc_host"] = request.form.get('bmc_host')
+        else:
+            bmc["bmc_host"] = 'No-Host'
         if request.form.get('bmc_username') != "":
             bmc["bmc_username"] = request.form.get('bmc_username')
+        else:
+            bmc["bmc_username"] = 'No-User'
         if request.form.get('bmc_password') != "":
             bmc["bmc_password"] = request.form.get('bmc_password')
+        else:
+            bmc["bmc_password"] = 'No-Pass'
         session['bmc'] = bmc
         if 'bmc' in session and session['bmc'] != {}:
             bmc_token = get_Bmc_Token(bmc)
@@ -183,6 +195,8 @@ def settings():
         # Check for any Microsoft Teams inputs
         if request.form.get('webhook_url') != "":
             mksft_teams['webhook_url'] = request.form.get('webhook_url')
+        else:
+            mksft_teams["webhook_url"] = 'No-URL'
         session['mksft_teams'] = mksft_teams
 
         return redirect(url_for('portal.home'))
