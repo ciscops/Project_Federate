@@ -23,6 +23,7 @@ from src.dnacAPI import *
 from src.primeAPI import *
 from src.epnmAPI import *
 from src.bmcAPI import *
+from src.aciAPI import *
 from src.teamsBot import *
 from src.checkIp import checkIp
 from datetime import datetime
@@ -66,7 +67,7 @@ def home():
     this is the page that will load once the user has logged in
     and entered all the credentials'''
     #check if all fields were filled out on settings page
-    required_keys = ["dnac", "prime", "epnm", "bmc", "mksft_teams"]
+    required_keys = ["dnac", "prime", "epnm", "aci", "bmc", "mksft_teams"]
     for key in required_keys:
         if key not in session:
             #if a field was not filled out, reload settings page
@@ -76,6 +77,7 @@ def home():
     dnac_status = checkIp(session["dnac"]["dnac_host"])
     prime_status = checkIp(session["prime"]["prime_host"])
     epnm_status = checkIp(session["epnm"]["epnm_host"])
+    aci_status = checkIp(session["aci"]["aci_host"])
     bmc_status = checkIp(session["bmc"]["bmc_host"])
     mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
 
@@ -83,29 +85,33 @@ def home():
     dnac = session["dnac"]
     prime = session["prime"]
     epnm = session["epnm"]
+    aci = session["aci"]
     bmc = session["bmc"]
     mksft_teams = session["mksft_teams"]
 
     dnac["events"] = []
     prime["events"] = []
     epnm["events"] = []
+    aci["events"] = []
 
     dnac["status"] = dnac_status
     prime["status"] = prime_status
     epnm["status"] = epnm_status
+    aci["status"] = aci_status
     bmc["status"] = bmc_status
     mksft_teams["status"] = mksft_teams_status
 
     session["dnac"] = dnac
     session["prime"] = prime
     session["epnm"] = epnm
+    session["aci"] = aci
 
-    if 'events' in session['dnac'] or 'events' in session['prime'] or 'events' in session['epnm']:
+    if 'events' in session['dnac'] or 'events' in session['prime'] or 'events' in session['epnm'] or 'events' in session['aci']:
         return render_template('portal/home.html', dnac_status=dnac_status,
-                prime_status=prime_status, epnm_status=epnm_status,bmc_status=bmc_status,
+                prime_status=prime_status, epnm_status=epnm_status, aci_status=aci_status, bmc_status=bmc_status,
                 mksft_teams_status=mksft_teams_status,
                 dnac_events=[],
-                prime_events=[], epnm_events=[])
+                prime_events=[], epnm_events=[], aci_events=[])
 
     return redirect(url_for('portal.home'))
 
@@ -121,6 +127,7 @@ def settings():
     dnac = {}
     prime = {}
     epnm = {}
+    aci = {}
     bmc = {}
     mksft_teams = {}
 
@@ -130,6 +137,8 @@ def settings():
         prime = session['prime']
     if 'epnm' in session:
         epnm = session['epnm']
+    if 'aci' in session:
+        aci = session['aci']
     if 'bmc' in session:
         bmc = session['bmc']
     if 'mksft_teams' in session:
@@ -172,6 +181,21 @@ def settings():
         else:
             epnm["epnm_password"] = 'No-pass'
         session['epnm'] = epnm
+
+        # Check for any ACI inputs
+        if request.form.get('aci_host') != "":
+            aci["aci_host"] = request.form.get('aci_host')
+        else:
+            aci["aci_host"] = 'No-host'
+        if request.form.get('aci_username') != "":
+            aci["aci_username"] = request.form.get('aci_username')
+        else:
+            aci["aci_username"] = 'No-user'
+        if request.form.get('aci_password') != "":
+            aci["aci_password"] = request.form.get('aci_password')
+        else:
+            aci["aci_password"] = 'No-pass'
+        session['aci'] = aci
 
         # Check for any BMC inputs
         if request.form.get('bmc_host') != "":
@@ -230,6 +254,13 @@ def epnmLogs():
     epnm_events = session["epnm"]["events"]
     return render_template('portal/epnmLogs.html', epnm_events=epnm_events)
 
+@bp.route('/aciLogs', methods=('GET',))
+@login_required
+def aciLogs():
+    #the ACI logs page needs to be passed the epnm events
+    aci_events = session["aci"]["events"]
+    return render_template('portal/aciLogs.html', aci_events=aci_events)
+
 @bp.route('/events', methods=('GET',))
 @login_required
 def events():
@@ -239,6 +270,7 @@ def events():
     dnac = session['dnac']
     prime = session['prime']
     epnm = session['epnm']
+    aci = session['aci']
 
     if dnac['status']:
         dnac['events'] = get_Dna_Events(session['dnac'])
@@ -248,10 +280,14 @@ def events():
 
     if epnm['status']:
         epnm['events'] = get_Epnm_Events(session['epnm'])
+    
+    if aci['status']:
+        aci['events'] = get_Aci_Events(session['aci'])
 
     dnac_events = []
     prime_events = []
     epnm_events = []
+    aci_events = []
     #parse through object api call retrieved to condense the size of the dnac events
     try:
         for dnac_event in dnac["events"]:
@@ -302,13 +338,32 @@ def events():
         #if key does not exist in event object, print out error
         print(str(e))
 
+    try:
+        #parse through object api call retrieved to condense the size of the ACI events
+        for aci_event in aci["events"]:
+            aci_evt = {
+                "id": aci_event['queryResponse']['entity'][0]['eventsDTO']['@id'],
+                "name": aci_event['queryResponse']['entity'][0]['eventsDTO']['condition']['value'],
+                "description": aci_event['queryResponse']['entity'][0]['eventsDTO']['description'],
+                "severity": aci_event['queryResponse']['entity'][0]['eventsDTO']['severity'],
+                "type": "aci"
+            }
+            #add sized down event to epnm_events list
+            aci_events.append(aci_evt)
+
+    except Exception as e:
+        #if key does not exist in event object, print out error
+        print(str(e))
+
     dnac["events"] = dnac_events
     prime["events"] = prime_events
     epnm["events"] = epnm_events
+    aci["events"] = aci_events
 
     session['dnac'] = dnac
     session['prime'] = prime
     session['epnm'] = epnm
+    session['aci'] = aci
 
     bmc = session['bmc']
     teams_url = session['mksft_teams']['webhook_url']
@@ -319,8 +374,9 @@ def events():
     q.put(lambda: send_Teams_Message(teams_url, dnac_events))
     q.put(lambda: send_Teams_Message(teams_url, prime_events))
     q.put(lambda: send_Teams_Message(teams_url, epnm_events))
+    q.put(lambda: send_Teams_Message(teams_url, aci_events))
 
-    events = dnac_events + prime_events + epnm_events
+    events = dnac_events + prime_events + epnm_events + aci_events
 
     return jsonify(events)
 
@@ -344,7 +400,7 @@ def primeTicket():
     prime_event = request.json
     bmc = session["bmc"]
 
-    resp = create_Bmc_Incident_Prime(bmc, prime_events)
+    resp = create_Bmc_Incident_Prime(bmc, prime_event)
 
     return resp
 
@@ -355,6 +411,19 @@ def epnmTicket():
     epnm_event = request.json
     bmc = session["bmc"]
 
-    resp = create_Bmc_Incident_Epnm(bmc, epnm_events)
+    resp = create_Bmc_Incident_Epnm(bmc, epnm_event)
 
     return resp
+
+
+@bp.route('/aciTicket', methods=('GET', 'POST'))
+@login_required
+def aciTicket():
+    #generate a BMC Remedy ticket for an EPNM event
+    aci_event = request.json
+    bmc = session["bmc"]
+
+    resp = create_Bmc_Incident_Epnm(bmc, aci_event)
+
+    return resp
+
