@@ -24,6 +24,7 @@ from src.primeAPI import *
 from src.epnmAPI import *
 from src.bmcAPI import *
 from src.aciAPI import *
+from src.sdwanAPI import *
 from src.teamsBot import *
 from src.checkIp import checkIp
 from datetime import datetime
@@ -31,6 +32,7 @@ import json
 import urllib3
 import threading
 import queue
+# import Crypto.Hash import SHA256
 
 
 urllib3.disable_warnings()
@@ -67,7 +69,7 @@ def home():
     this is the page that will load once the user has logged in
     and entered all the credentials'''
     #check if all fields were filled out on settings page
-    required_keys = ["dnac", "prime", "epnm", "aci", "bmc", "mksft_teams"]
+    required_keys = ["dnac", "prime", "epnm", "aci", "bmc", "mksft_teams", "sdwan"]
     for key in required_keys:
         if key not in session:
             #if a field was not filled out, reload settings page
@@ -78,6 +80,7 @@ def home():
     prime_status = checkIp(session["prime"]["prime_host"])
     epnm_status = checkIp(session["epnm"]["epnm_host"])
     aci_status = checkIp(session["aci"]["aci_host"])
+    sdwan_status = checkIp(session["sdwan"]["sdwan_host"])
     bmc_status = checkIp(session["bmc"]["bmc_host"])
     mksft_teams_status = session['mksft_teams'].get('webhook_url', "") != ""
 
@@ -86,18 +89,22 @@ def home():
     prime = session["prime"]
     epnm = session["epnm"]
     aci = session["aci"]
+    sdwan = session["sdwan"]
     bmc = session["bmc"]
     mksft_teams = session["mksft_teams"]
 
     dnac["events"] = []
+    dnac_health = get_Dna_Health(session['dnac'])
     prime["events"] = []
     epnm["events"] = []
     aci["events"] = []
+    sdwan["events"] = []
 
     dnac["status"] = dnac_status
     prime["status"] = prime_status
     epnm["status"] = epnm_status
     aci["status"] = aci_status
+    sdwan["status"] = sdwan_status
     bmc["status"] = bmc_status
     mksft_teams["status"] = mksft_teams_status
 
@@ -105,13 +112,14 @@ def home():
     session["prime"] = prime
     session["epnm"] = epnm
     session["aci"] = aci
+    session["sdwan"] = sdwan
 
-    if 'events' in session['dnac'] or 'events' in session['prime'] or 'events' in session['epnm'] or 'events' in session['aci']:
+    if 'events' in session['dnac'] or 'events' in session['prime'] or 'events' in session['epnm'] or 'events' in session['aci'] or 'events' in session['sdwan']:
         return render_template('portal/home.html', dnac_status=dnac_status,
-                prime_status=prime_status, epnm_status=epnm_status, aci_status=aci_status, bmc_status=bmc_status,
+                prime_status=prime_status, epnm_status=epnm_status, aci_status=aci_status, sdwan_status = sdwan_status, bmc_status=bmc_status,
                 mksft_teams_status=mksft_teams_status,
                 dnac_events=[],
-                prime_events=[], epnm_events=[], aci_events=[])
+                prime_events=[], epnm_events=[], aci_events=[], sdwan_events = [], dnac_health = dnac_health)
 
     return redirect(url_for('portal.home'))
 
@@ -130,6 +138,7 @@ def settings():
     aci = {}
     bmc = {}
     mksft_teams = {}
+    sdwan = {}
 
     if 'dnac' in session:
         dnac = session['dnac']
@@ -139,6 +148,8 @@ def settings():
         epnm = session['epnm']
     if 'aci' in session:
         aci = session['aci']
+    if 'sdwan' in session:
+        sdwan = session['sdwan']
     if 'bmc' in session:
         bmc = session['bmc']
     if 'mksft_teams' in session:
@@ -147,6 +158,7 @@ def settings():
     if request.method == 'POST':
         # Check for any DNA-Center inputs
         if request.form.get('dnac_host') != "":
+            #dnacHostHash = SHA256.new()
             dnac["dnac_host"] = request.form.get('dnac_host')
         if request.form.get('dnac_username') != "":
             dnac["dnac_username"] = request.form.get('dnac_username')
@@ -196,6 +208,26 @@ def settings():
         else:
             aci["aci_password"] = 'No-pass'
         session['aci'] = aci
+
+        # Check for any SDWAN inputs
+        if request.form.get('sdwan_host') != "":
+            sdwan["sdwan_host"] = request.form.get('sdwan_host')
+        else:
+            sdwan["sdwan_host"] = 'No-host'
+        if request.form.get('sdwan_username') != "":
+            sdwan["sdwan_username"] = request.form.get('sdwan_username')
+        else:
+            sdwan["sdwan_username"] = 'No-user'
+        if request.form.get('sdwan_password') != "":
+            sdwan["sdwan_password"] = request.form.get('sdwan_password')
+        else:
+            aci["sdwan_password"] = 'No-pass'
+        session['sdwan'] = sdwan
+        if 'sdwan' in session and session['sdwan'] != {}:
+            sdwan_header = authSDWAN(sdwan)
+            sdwan["header"] = sdwan_header
+            session["sdwan"] = sdwan
+
 
         # Check for any BMC inputs
         if request.form.get('bmc_host') != "":
@@ -261,6 +293,13 @@ def aciLogs():
     aci_events = session["aci"]["events"]
     return render_template('portal/aciLogs.html', aci_events=aci_events)
 
+@bp.route('/sdwanLogs', methods=('GET',))
+@login_required
+def sdwanLogs():
+    #the ACI logs page needs to be passed the epnm events
+    sdwan_events = session["sdwan"]["events"]
+    return render_template('portal/sdwanLogs.html', sdwan_events=sdwan_events)
+
 @bp.route('/events', methods=('GET',))
 @login_required
 def events():
@@ -271,9 +310,11 @@ def events():
     prime = session['prime']
     epnm = session['epnm']
     aci = session['aci']
+    sdwan = session['sdwan']
 
     if dnac['status']:
         dnac['events'] = get_Dna_Events(session['dnac'])
+        
 
     if prime['status']:
         prime['events'] = get_Prime_Events(session['prime'])
@@ -284,10 +325,15 @@ def events():
     if aci['status']:
         aci['events'] = get_Aci_Events(session['aci'])
 
+    if sdwan['status']:
+        sdwan['events'] = get_Sdwan_Events(session['sdwan'])
+
     dnac_events = []
     prime_events = []
     epnm_events = []
     aci_events = []
+    sdwan_events = []
+    
     #parse through object api call retrieved to condense the size of the dnac events
     try:
         for dnac_event in dnac["events"]:
@@ -355,16 +401,35 @@ def events():
         #if key does not exist in event object, print out error
         print(str(e))
 
+    try:
+        #parse through object api call retrieved to condense the size of the SDWAN events
+        for sdwan_event in sdwan["events"]["data"]:
+            sdwan_evt = {
+                "id": sdwan_event['id'],
+                "name": sdwan_event['eventname'],
+                "description": sdwan_event['details'],
+                "severity": sdwan_event['severity_level'],
+                "type": "sdwan"
+            }
+            #add sized down event to sdwan_events list
+            sdwan_events.append(sdwan_evt)
+
+    except Exception as e:
+        #if key does not exist in event object, print out error
+        print(str(e))
+
     dnac["events"] = dnac_events
+
     prime["events"] = prime_events
     epnm["events"] = epnm_events
     aci["events"] = aci_events
+    sdwan["events"] = sdwan_events
 
     session['dnac'] = dnac
     session['prime'] = prime
     session['epnm'] = epnm
     session['aci'] = aci
-
+    session['sdwan'] = sdwan
     bmc = session['bmc']
     teams_url = session['mksft_teams']['webhook_url']
 
@@ -375,8 +440,9 @@ def events():
     q.put(lambda: send_Teams_Message(teams_url, prime_events))
     q.put(lambda: send_Teams_Message(teams_url, epnm_events))
     q.put(lambda: send_Teams_Message(teams_url, aci_events))
+    q.put(lambda: send_Teams_Message(teams_url, sdwan_events))
 
-    events = dnac_events + prime_events + epnm_events + aci_events
+    events = dnac_events + prime_events + epnm_events + aci_events + sdwan_events
 
     return jsonify(events)
 
@@ -419,11 +485,23 @@ def epnmTicket():
 @bp.route('/aciTicket', methods=('GET', 'POST'))
 @login_required
 def aciTicket():
-    #generate a BMC Remedy ticket for an EPNM event
+    #generate a BMC Remedy ticket for an ACI event
     aci_event = request.json
     bmc = session["bmc"]
 
     resp = create_Bmc_Incident_Epnm(bmc, aci_event)
+
+    return resp
+
+
+@bp.route('/sdwanTicket', methods=('GET', 'POST'))
+@login_required
+def sdwanTicket():
+    #generate a BMC Remedy ticket for an SDWAN event
+    sdwan_event = request.json
+    bmc = session["bmc"]
+
+    resp = create_Bmc_Incident_Sdwan(bmc, sdwan_event)
 
     return resp
 

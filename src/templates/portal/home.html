@@ -82,6 +82,17 @@
 											<span class="icon-exit"></span>
 											{% endif %}
 									</td>
+									<td><h5>SDWAN:</h5></td>
+									<td>
+										{% if sdwan_status == True %}
+										<button class="btn btn--circle btn--success btn--large">
+											<span class="icon-check"></span>
+										</button>
+										{% else %}
+										<button class="btn btn--circle btn--danger btn--large">
+											<span class="icon-exit"></span>
+										{% endif %}
+									</td>
 								</tr>
 								</tbody>
 							</table>
@@ -93,6 +104,79 @@
 	</div>
 </div>
 
+<!--- Network Health Widget-->
+
+<div class="row">
+	<div class="col-12">
+		<div class="panel panel--raised" style="background-color: #f2f2f2; text-align:center;">
+			<div class="row">
+				<div class="col-2"></div>
+				<div class="col-8">
+					<h1><u>Network Health</u></h1>
+				</div>
+				<div class="col-2"></div>
+			</div>
+			<div class="row base-margin-bottom">
+				<div class="col-2"></div>
+				<div class="col-8">
+
+					{% if dnac_health >= 0 and dnac_health <= 50 %}
+					<div class="gauge gauge--danger" data-percentage="{{dnac_health}}">
+						<div class="gauge__circle">
+							<div class="mask full">
+								<div class="fill"></div>
+							</div>
+							<div class="mask half">
+								<div class="fill"></div>
+								<div class="fill fix"></div>
+							</div>
+						</div>
+						<div class="gauge__inset">
+							<div class="gauge__percentage">{{dnac_health}}%</div>
+						</div>
+					</div>
+					
+					{% elif dnac_health > 50 and dnac_health < 75 %}
+					<div class="gauge gauge--warning" data-percentage="{{dnac_health}}">
+						<div class="gauge__circle">
+							<div class="mask full">
+								<div class="fill"></div>
+							</div>
+							<div class="mask half">
+								<div class="fill"></div>
+								<div class="fill fix"></div>
+							</div>
+						</div>
+						<div class="gauge__inset">
+							<div class="gauge__percentage">{{dnac_health}}%</div>
+						</div>
+					</div>
+
+					{% elif dnac_health >= 75  %}
+					<div class="gauge gauge--success" data-percentage="{{dnac_health}}">
+						<div class="gauge__circle">
+							<div class="mask full">
+								<div class="fill"></div>
+							</div>
+							<div class="mask half">
+								<div class="fill"></div>
+								<div class="fill fix"></div>
+							</div>
+						</div>
+						<div class="gauge__inset">
+							<div class="gauge__percentage">{{dnac_health}}%</div>
+						</div>
+					</div>
+					{% endif %}
+				</div>
+				<div class="col-2"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!--- Alerts -->
 <div class="row">
 	<div class="col-12">
 		<div class="panel panel--raised" style="background-color: #f2f2f2; text-align:center;">
@@ -105,7 +189,7 @@
 			</div>
 			<div class="row base-margin-bottom">
 				<!-- <div class="col-2"></div> -->
-				<div class="col-4">
+				<div class="col-3">
           <h4><u>DNA-Center</u></h4>
 					<script>
 					    seen_events = {};
@@ -120,11 +204,14 @@
                   const dnac_size = document.getElementById("dnacsize");
                   const prime_size = document.getElementById("primesize");
 				  const epnm_size = document.getElementById("epnmsize");
+				  const sdwan_size = document.getElementById("sdwansize");
                   const response_text = http.response;
                   var dnac_events_len = 0;
                   var prime_events_len = 0;
 				  var epnm_events_len = 0;
+				  var sdwan_events_len = 0;
                   let new_events = [];
+				  
                   if(response_text != "") {
                     try {
                       new_events = JSON.parse(response_text);
@@ -133,6 +220,7 @@
                       dnac_size.innerHTML = "There was an error retrieving DNAC events";
                       prime_size.innerHTML = "There was an error retrieving Prime events";
 					  epnm_size.innerHTML = "There was an error retrieving EPNM events";
+					  sdwan_size.innerHTML = "There was an error retrieving SDWAN events"
                       console.log(err);
                       console.log(new_events);
                       return;
@@ -158,14 +246,20 @@
                       {
                         epnm_events_len += 1;
                       }
+					  						if (event.type == "sdwan")
+                      {
+                        sdwan_events_len += 1;
+                      }
 									  }
 								  }
                   dnac_size_string = dnac_events_len + " New DNAC Events"
                   prime_size_string = prime_events_len + " New Prime Events"
 				  epnm_size_string = epnm_events_len + " New EPNM Events"
+				  sdwan_size_string = sdwan_events_len + " New SDWAN Events"
                   dnac_size.innerHTML = dnac_size_string;
                   prime_size.innerHTML = prime_size_string;
-				  epnm_size.innerHTML = epnm_size_string;  
+				  epnm_size.innerHTML = epnm_size_string;
+				  sdwan_size.innerHTML = sdwan_size_string;
                 }
 							}
               setTimeout(updateDNACEvents, 0);
@@ -177,7 +271,7 @@
             </a>
           </h6>
 				</div>
-				<div class="col-4">
+				<div class="col-3">
           <h4><u>Prime Infrastructure</u></h4>
           <h6>
             <a href="{{ url_for('portal.primeLogs') }}" id="primesize" target="_blank">
@@ -185,7 +279,7 @@
             </a>
           </h6>
 		  </div>
-		  <div class="col-4">
+		  <div class="col-3">
 			<h4><u>EPNM</u></h4>
 			<h6>
 			  <a href="{{ url_for('portal.epnmLogs') }}" id="epnmsize" target="_blank">
@@ -193,6 +287,14 @@
 			  </a>
 			</h6>
 			</div>
+			<div class="col-3">
+				<h4><u>SDWAN</u></h4>
+				<h6>
+				  <a href="{{ url_for('portal.sdwanLogs') }}" id="sdwansize" target="_blank">
+					Retrieving SDWAN Events...
+				  </a>
+				</h6>
+				</div>
 					<!-- <div class="col-2"></div> -->
 				</div>
 			</div>

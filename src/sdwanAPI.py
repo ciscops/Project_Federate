@@ -5,12 +5,13 @@ import json
 
 urllib3.disable_warnings()
 
+
 class Authentication:
 
     @staticmethod
-    def get_jsessionid(vmanage_host, username, password):
+    def get_jsessionid(vmanage_host, vmanage_port, username, password):
         api = "/j_security_check"
-        base_url = "https://%s"%(vmanage_host)
+        base_url = "https://%s:%s"%(vmanage_host, vmanage_port)
         url = base_url + api
         payload = {'j_username' : username, 'j_password' : password}
 
@@ -24,9 +25,9 @@ class Authentication:
             exit()
 
     @staticmethod
-    def get_token(vmanage_host, jsessionid):
+    def get_token(vmanage_host, vmanage_port, jsessionid):
         headers = {'Cookie': jsessionid}
-        base_url = "https://%s"%(vmanage_host)
+        base_url = "https://%s:%s"%(vmanage_host, vmanage_port)
         api = "/dataservice/client/token"
         url = base_url + api      
         response = requests.get(url=url, headers=headers, verify=False)
@@ -35,40 +36,68 @@ class Authentication:
         else:
             return None
 
-vmanage_host= 'sandbox-sdwan-1.cisco.com'
-vmanage_username = 'devnetuser'
-vmanage_password='RG!_Yw919_83'
-vmanage_port='8443'
-Auth = Authentication()
-jsessionid = Auth.get_jsessionid(vmanage_host,vmanage_username,vmanage_password)
-token = Auth.get_token(vmanage_host,jsessionid)
+
+def authSDWAN(sdwan):
+    Auth = Authentication()
+    jsessionid = Auth.get_jsessionid(sdwan['sdwan_host'],443,sdwan['sdwan_username'],sdwan['sdwan_password'])
+    token = Auth.get_token(sdwan['sdwan_host'],443,jsessionid)
+
+    if token is not None:
+        header = {'Content-Type': "application/json",'Cookie': jsessionid, 'X-XSRF-TOKEN': token}
+    else:
+        header = {'Content-Type': "application/json",'Cookie': jsessionid}
+
+    return header
 
 
-if token is not None:
-    header = {'Content-Type': "application/json",'Cookie': jsessionid, 'X-XSRF-TOKEN': token}
-else:
-    header = {'Content-Type': "application/json",'Cookie': jsessionid}
 
-#API call to retrieve SDWAN events
-def get_Sdwan_Events(dnac):
-    url = 'https://{}/dna/intent/api/v1/events?tags=ASSURANCE'.format(dnac['dnac_host'])
-    headers = {
-        'x-auth-token': dnac['dnac_Token'],
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+#API call to retrieve sdwan events
+def get_Sdwan_Events(sdwan):
+    
+    #Get critical events from the previous three hours
+    query = {
+        "query": {
+            "condition": "AND",
+            "rules": [
+            {
+                "value": [
+                "300"
+                ],
+                "field": "entry_time",
+                "type": "date",
+                "operator": "last_n_hours"
+            },
+            {
+                "value": [
+                "critical"
+                ],
+                "field": "severity_level",
+                "type": "string",
+                "operator": "in"
+            }
+            ]
+        }
     }
 
-    resp = requests.get(url, headers=headers, verify=False)
+    url = 'https://'+sdwan['sdwan_host']+'/dataservice/event?query='+json.dumps(query)
+    #url ='https://'+sdwan['sdwan_host']+'/dataservice/event'
+
+    resp = requests.get(url, headers=sdwan['header'], verify=False)
 
     if 'error' in resp.json():
-        print('ERROR: Failed to retrieve DNAC events')
+        print('ERROR: Failed to retrieve sdwan events')
         print('REASON: {}'.format(resp.json()['error']))
         result = ""
     elif 'exp' in resp.json():
-        print('ERROR: Failed to retrieve DNAC events')
+        print('ERROR: Failed to retrieve sdwan events')
         print('REASON: {}'.format(resp.json()['exp']))
         result = ""
     else:
         result = resp.json()
 
     return result
+
+sdwanVar = {'sdwan_host': 'sandbox-sdwan-1.cisco.com', 'sdwan_username':'devnetuser', 'sdwan_password':'RG!_Yw919_83'}
+sdwanVar['header'] = authSDWAN(sdwanVar)
+#print(sdwanVar)
+print(get_Sdwan_Events(sdwanVar))
