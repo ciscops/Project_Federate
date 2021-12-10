@@ -1,7 +1,7 @@
 # Project Federate
-This is the source code for the DNA Center, Prime Infrastructure, and EPNM events 
-dashboard. Using the APIs of DNA Center, Prime Infrastructure, and EPNM we have 
-developed a method to pull the events of DNA Center, Prime Infrastructure, and EPNM.
+This is the source code for the DNA Center, Prime Infrastructure, EPNM and SDWAN events 
+dashboard. Using the APIs of the platforms, we have 
+developed a method to pull the events of DNA Center, Prime Infrastructure, EPNM, and SDWAN.
 The events are then displayed onto a dashboard, BMC incident tickets are 
 generated for events of a specified severity, and Teams messages about the 
 events are sent to a specified channel.
@@ -18,6 +18,7 @@ events are sent to a specified channel.
 * DNA Center API
 * Prime Infrastructure API
 * EPNM API
+* SDWAN vManage API
 * Microsoft Teams
 * BMC API
 * Python 3.9
