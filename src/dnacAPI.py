@@ -65,5 +65,5 @@ def get_Dna_Health(dnac):
     }
 
     resp = requests.get(url, headers=headers, verify=False)
-    
+    print('response from DNAC health ', resp.json()['response'][0]['healthScore'])
     return resp.json()['response'][0]['healthScore']

@@ -222,12 +222,13 @@ def settings():
             sdwan["sdwan_password"] = request.form.get('sdwan_password')
         else:
             aci["sdwan_password"] = 'No-pass'
-        session['sdwan'] = sdwan
-        if 'sdwan' in session and session['sdwan'] != {}:
+        
+        if 'sdwan' in session and session['sdwan'] != "":
             sdwan_header = authSDWAN(sdwan)
             sdwan["header"] = sdwan_header
             session["sdwan"] = sdwan
-
+        
+        session['sdwan'] = sdwan
 
         # Check for any BMC inputs
         if request.form.get('bmc_host') != "":
