@@ -61,7 +61,7 @@ def get_Sdwan_Events(sdwan):
             "rules": [
             {
                 "value": [
-                "300"
+                "1000"
                 ],
                 "field": "entry_time",
                 "type": "date",
@@ -69,7 +69,7 @@ def get_Sdwan_Events(sdwan):
             },
             {
                 "value": [
-                "critical"
+                "critical", "major"
                 ],
                 "field": "severity_level",
                 "type": "string",
@@ -82,7 +82,7 @@ def get_Sdwan_Events(sdwan):
     url = 'https://'+sdwan['sdwan_host']+'/dataservice/event?query='+json.dumps(query)
     #url ='https://'+sdwan['sdwan_host']+'/dataservice/event'
 
-    resp = requests.get(url, headers=sdwan['header'], verify=False)
+    resp = requests.get(url, headers=sdwan["header"], verify=False)
 
     if 'error' in resp.json():
         print('ERROR: Failed to retrieve sdwan events')

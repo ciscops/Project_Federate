@@ -209,26 +209,19 @@ def settings():
             aci["aci_password"] = 'No-pass'
         session['aci'] = aci
 
-        # Check for any SDWAN inputs
-        if request.form.get('sdwan_host') != "":
+        
+         # Check for any SDWAN inputs
+        if request.form.get('sdwdan_host') != "":
             sdwan["sdwan_host"] = request.form.get('sdwan_host')
-        else:
-            sdwan["sdwan_host"] = 'No-host'
         if request.form.get('sdwan_username') != "":
             sdwan["sdwan_username"] = request.form.get('sdwan_username')
-        else:
-            sdwan["sdwan_username"] = 'No-user'
         if request.form.get('sdwan_password') != "":
             sdwan["sdwan_password"] = request.form.get('sdwan_password')
-        else:
-            aci["sdwan_password"] = 'No-pass'
-        
-        if 'sdwan' in session and session['sdwan'] != "":
-            sdwan_header = authSDWAN(sdwan)
-            sdwan["header"] = sdwan_header
+        session["sdwan"] = sdwan
+        if 'sdwan' in session and session['sdwan'] != {}:
+            sdwan["header"] = authSDWAN(sdwan)
             session["sdwan"] = sdwan
-        
-        session['sdwan'] = sdwan
+
 
         # Check for any BMC inputs
         if request.form.get('bmc_host') != "":
