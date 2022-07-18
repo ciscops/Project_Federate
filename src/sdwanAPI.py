@@ -61,7 +61,7 @@ def get_Sdwan_Events(sdwan):
             "rules": [
             {
                 "value": [
-                "1000"
+                "100"
                 ],
                 "field": "entry_time",
                 "type": "date",
@@ -69,7 +69,7 @@ def get_Sdwan_Events(sdwan):
             },
             {
                 "value": [
-                "critical", "major"
+                "critical"
                 ],
                 "field": "severity_level",
                 "type": "string",
@@ -97,7 +97,3 @@ def get_Sdwan_Events(sdwan):
 
     return result
 
-sdwanVar = {'sdwan_host': 'sandbox-sdwan-1.cisco.com', 'sdwan_username':'devnetuser', 'sdwan_password':'RG!_Yw919_83'}
-sdwanVar['header'] = authSDWAN(sdwanVar)
-#print(sdwanVar)
-print(get_Sdwan_Events(sdwanVar))

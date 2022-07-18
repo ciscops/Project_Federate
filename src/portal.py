@@ -218,6 +218,7 @@ def settings():
         if request.form.get('sdwan_password') != "":
             sdwan["sdwan_password"] = request.form.get('sdwan_password')
         session["sdwan"] = sdwan
+        print("sdwan", session["sdwan"])
         if 'sdwan' in session and session['sdwan'] != {}:
             sdwan["header"] = authSDWAN(sdwan)
             session["sdwan"] = sdwan
@@ -418,6 +419,7 @@ def events():
     epnm["events"] = epnm_events
     aci["events"] = aci_events
     sdwan["events"] = sdwan_events
+
 
     session['dnac'] = dnac
     session['prime'] = prime
